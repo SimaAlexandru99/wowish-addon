@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="WOWISH_TOGGLE" header="WOWISH" category="ADDONS">
+    Wowish_OnAddonCompartmentClick()
+  </Binding>
+</Bindings>

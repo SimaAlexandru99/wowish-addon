@@ -1,0 +1,6 @@
+# packager output
+.release/
+# private leftovers of the old Python prototype (player data, QuestieDB extracts) - never commit
+data/
+addon/
+__pycache__/

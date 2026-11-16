@@ -1,0 +1,13 @@
+package-as: Wowish
+
+ignore:
+  - spec
+  - docs
+  - .github
+  - .busted
+  - .luacheckrc
+  - .mcp.json
+  - .pkgmeta
+  - AGENTS.md
+  - DESIGN.md
+  - README.md

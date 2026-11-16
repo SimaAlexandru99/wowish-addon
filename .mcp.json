@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "wow-api": {
+      "command": "npx",
+      "args": ["-y", "wow-addon-api-mcp@0.5.3"]
+    }
+  }
+}

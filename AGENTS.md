@@ -1,0 +1,9 @@
+# Wowish - notes for coding agents
+- WoW Forever addon (client 1.60.1, Interface 16001). Forever is Mainline-family (game type "camelot", modern `C_*` API, secret values), NOT Classic Era: check APIs with the `wow-api` MCP (`.mcp.json`, channel `forever`) or by grepping installed Forever addons.
+- Passive advisor: never act in combat, no input automation, no network, waypoints only on an explicit click/command. GPL-3.0-or-later.
+- Layout: addon files at the repo root, load order = `Wowish.toc`; `spec/` busted tests with `spec/wow_mock.lua` (extend the mock for every new client call); `docs/mockups/` approved UI.
+- Run: `PATH=~/.local/share/lua51-dev/bin:$PATH; luacheck *.lua spec && busted` (Lua 5.1 + LuaRocks via hererocks, no sudo). CI runs the same (`.github/workflows/test.yml`). In-game behaviour is UNTESTED until the player confirms it.
+- QuestieDB is an optional runtime dependency read through `LibQuestieDB` (contract 4). Never copy its data into the repo or the package; its maintainers ask for a dependency, not embedding. Do not copy text from Icy Veins/Wowhead/Maxroll/Guidelime.
+- Texts: English keys in `L["..."]`, Romanian in `Locale.lua` without diacritics; counted nouns go through `ns.Count`.
+- `data/` and `addon/` are ignored leftovers of the private Python prototype (player data, QuestieDB extracts): never commit them.
+- Release: tag `v*` runs `.github/workflows/release.yml` (BigWigs packager; secrets `CF_API_TOKEN`, `WAGO_API_TOKEN`). No push to main, no tag, no publish, no copying into game folders without the owner's explicit GO.

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wowish UI mockups</title>
+<style>
+  /* Page chrome follows the viewer theme; the game frames use fixed in-game colours on purpose. */
+  .label { font: 600 12px var(--font-sans); letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted-foreground); margin: 22px 0 8px; }
+  .label:first-child { margin-top: 0; }
+  .note { font: 13px/1.45 var(--font-sans); color: var(--muted-foreground); margin: 8px 0 0; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+
+  .wf { --gold: #ffd100; --text: #f2f2f2; --grey: #a8a8a8; --line: #4a4a4a;
+    background: linear-gradient(#1d1d1f, #141415); border: 2px solid #5b5b5b; border-radius: 6px;
+    box-shadow: inset 0 0 0 1px #000, 0 4px 14px rgba(0,0,0,.35); color: var(--text);
+    font: 13px/1.4 Georgia, "Times New Roman", serif; width: 100%; max-width: 460px; }
+  .wf.small { max-width: 300px; }
+  .wf .bar { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(#2c2c2f, #1f1f21); border-radius: 4px 4px 0 0; }
+  .wf .portrait { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #8a7a4a;
+    background: radial-gradient(circle at 40% 35%, #6c5a2c, #2a2210); display: grid; place-items: center;
+    color: var(--gold); font-weight: bold; flex: none; }
+  .wf .title { color: var(--gold); font-size: 15px; flex: 1; }
+  .wf .x { width: 20px; height: 20px; border-radius: 3px; background: #7a1d14; border: 1px solid #c0392b;
+    color: #fff; font: bold 12px/18px sans-serif; text-align: center; flex: none; }
+  .wf .body { padding: 12px; }
+  .wf .sub { color: var(--grey); font-size: 12px; margin-bottom: 10px; }
+  .wf .foot { display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    border-top: 1px solid var(--line); padding: 8px 12px; color: var(--grey); font-size: 12px; }
+
+  .btn { display: inline-block; padding: 4px 12px; border-radius: 3px; font: bold 12px Georgia, serif;
+    color: var(--gold); background: linear-gradient(#8b1a10, #5a0f08); border: 1px solid #c8a64a; white-space: nowrap; }
+  .btn.ghost { background: linear-gradient(#3a3a3d, #26262a); border-color: #6a6a6a; color: #e8e8e8; }
+  .btn.sm { padding: 2px 8px; font-size: 11px; }
+
+  .card { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px 10px; align-items: start;
+    padding: 9px 8px; border: 1px solid #333; border-radius: 4px; background: #1a1a1c; margin-bottom: 6px; }
+  .ico { width: 30px; height: 30px; border-radius: 4px; border: 1px solid #000; box-shadow: inset 0 0 0 1px #666;
+    display: grid; place-items: center; font: bold 15px sans-serif; color: #111; }
+  .ico.talent { background: #c9a227; } .ico.quest { background: #e8c547; } .ico.ammo { background: #8fbf5a; }
+  .ico.bags { background: #b9864f; } .ico.zone { background: #6fa8dc; }
+  .what { color: var(--text); }
+  .why { color: var(--grey); font-size: 12px; margin-top: 2px; }
+  .acts { display: flex; gap: 6px; align-items: center; }
+  .dismiss { color: #777; font: 14px sans-serif; padding: 0 2px; }
+
+  .chk { display: flex; gap: 8px; align-items: center; margin: 6px 0; }
+  .box { width: 14px; height: 14px; border: 1px solid #888; border-radius: 2px; background: #111;
+    display: grid; place-items: center; color: var(--gold); font: bold 11px sans-serif; flex: none; }
+  .drop { display: inline-flex; justify-content: space-between; min-width: 130px; padding: 3px 8px;
+    border: 1px solid #666; border-radius: 3px; background: #0f0f10; color: var(--text); font-size: 12px; }
+  .dep { display: flex; gap: 8px; align-items: baseline; margin: 4px 0; font-size: 12px; }
+  .ok { color: #3fbf3f; } .no { color: #e0a030; }
+  .promise { border-left: 3px solid var(--gold); padding: 6px 10px; margin: 10px 0; background: #222225; font-size: 12px; }
+  .sect { color: var(--gold); font-size: 13px; margin: 12px 0 4px; border-bottom: 1px solid var(--line); padding-bottom: 3px; }
+  .slider { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .track { flex: 1; height: 4px; background: #444; border-radius: 2px; position: relative; max-width: 160px; }
+  .track::after { content: ""; position: absolute; left: 50%; top: -5px; width: 10px; height: 14px; background: #c8a64a; border-radius: 2px; }
+  .empty { text-align: center; padding: 22px 10px; color: var(--grey); }
+  .empty b { display: block; color: var(--text); font-weight: normal; font-size: 14px; margin-bottom: 4px; }
+  .chat { background: rgba(0,0,0,.75); border-radius: 4px; padding: 8px 10px; font: 12px/1.5 Arial, sans-serif;
+    color: #fff; max-width: 460px; }
+  .chat .tag { color: #33ff99; }
+  .menu { background: #111; border: 1px solid #555; border-radius: 4px; padding: 4px; font: 12px Arial, sans-serif;
+    color: #ddd; width: 170px; }
+  .menu div { padding: 4px 6px; display: flex; gap: 6px; align-items: center; }
+  .menu .hl { background: #2a3d5a; border-radius: 2px; }
+  .mini { width: 14px; height: 14px; border-radius: 2px; background: #c9a227; flex: none; }
+  .banner { background: #3a1010; border: 1px solid #7a2020; color: #ffb3b3; border-radius: 3px; padding: 5px 8px;
+    font-size: 12px; margin-bottom: 8px; }
+  .settings { display: grid; grid-template-columns: 130px 1fr; max-width: 100%; }
+  .settings .nav { border-right: 1px solid var(--line); padding: 10px 8px; font-size: 12px; color: var(--grey); }
+  .settings .nav div { padding: 3px 4px; } .settings .nav .on { color: var(--gold); background: #2a2a2d; border-radius: 2px; }
+  @media (max-width: 520px) { .settings { grid-template-columns: 1fr; } .settings .nav { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="label">1 · Welcome / onboarding (first login only)</div>
+<div class="wf">
+  <div class="bar"><div class="portrait">W</div><div class="title">Welcome to Wowish</div><div class="x">×</div></div>
+  <div class="body">
+    <div>Wowish looks at your character when you are out of combat and tells you the few things worth doing next:
+      quests ready to hand in, unspent talent points, full bags, where to quest, and (for Hunters) ammo.</div>
+    <div class="promise">Never acts in combat. Never presses a button or casts anything for you.
+      Waypoints only when you click one.</div>
+    <div class="sect">Optional helpers</div>
+    <div class="dep"><span class="ok">✔</span><span><b>QuestieDB</b> found: advice includes where to go.</span></div>
+    <div class="dep"><span class="no">–</span><span><b>TomTom</b> not found: waypoints use the game's own map pin.</span></div>
+    <div class="sect">Quick setup</div>
+    <div class="chk">Language <span class="drop">English <span>▾</span></span></div>
+    <div class="chk"><span class="box">✔</span>Show a one-line summary in chat when I log in</div>
+  </div>
+  <div class="foot"><span>Reopen anytime: /wowish welcome</span>
+    <span class="acts"><span class="btn ghost">Close</span><span class="btn">Show my advice</span></span></div>
+</div>
+
+<div class="label">2 · Main window (/wowish, Addon Compartment)</div>
+<div class="wf">
+  <div class="bar"><div class="portrait">W</div><div class="title">Wowish — what to do now</div><div class="x">×</div></div>
+  <div class="body">
+    <div class="sub">Example Hunter, level 25 · updated 1 min ago</div>
+    <div class="card"><div class="ico talent">✦</div>
+      <div><div class="what">You have 1 unspent talent point.</div>
+        <div class="why">Open your talents and spend them: an unspent point is power you are not using.</div></div>
+      <div class="acts"><span class="dismiss">×</span></div></div>
+    <div class="card"><div class="ico quest">!</div>
+      <div><div class="what">Turn in 2 quest(s) in The Barrens: Fungal Spores, Plainstrider Menace.</div>
+        <div class="why">Completed quests give their XP only when you hand them in. They are on your current map.</div></div>
+      <div class="acts"><span class="btn sm">Waypoint</span><span class="dismiss">×</span></div></div>
+    <div class="card"><div class="ico ammo">➶</div>
+      <div><div class="what">Upgrade your ammo: buy Razor Arrow (level 25) instead of Sharp Arrow.</div>
+        <div class="why">Ammo adds damage to every shot. Barg sells it on your current map.</div></div>
+      <div class="acts"><span class="btn sm">Waypoint</span><span class="dismiss">×</span></div></div>
+    <div class="card"><div class="ico bags">▣</div>
+      <div><div class="what">Bags almost full: 3 free slot(s) of 64.</div>
+        <div class="why">With full bags you start leaving loot behind. Sell or destroy grey items.</div></div>
+      <div class="acts"><span class="dismiss">×</span></div></div>
+    <div class="card"><div class="ico zone">➜</div>
+      <div><div class="what">Keep questing in The Barrens: 6 open quest(s) at your level.</div>
+        <div class="why">Most of your active objectives near your level are there. You are at 42% of level 25.</div></div>
+      <div class="acts"><span class="dismiss">×</span></div></div>
+  </div>
+  <div class="foot"><span>Hidden tips come back when things change.</span><span class="btn ghost sm">Settings</span></div>
+</div>
+<p class="note">In combat the window hides and /wowish answers in chat only. Cards are sorted by priority; at most 5. “×” hides a tip for this session only. Waypoint appears only when a place is known.</p>
+
+<div class="label">3 · Empty state</div>
+<div class="row">
+  <div class="wf small">
+    <div class="bar"><div class="portrait">W</div><div class="title">Wowish</div><div class="x">×</div></div>
+    <div class="body"><div class="empty"><b>Nothing urgent.</b>Keep questing in The Barrens.</div></div>
+  </div>
+</div>
+</div>
+
+<div class="label">4 · Settings (Game Menu → Options → AddOns → Wowish)</div>
+<div class="wf settings" style="max-width:100%">
+  <div class="nav"><div>Controls</div><div>Interface</div><div>AddOns</div><div class="on">&nbsp;&nbsp;Wowish</div></div>
+  <div class="body">
+    <div class="sect" style="margin-top:0">General</div>
+    <div class="chk">Language <span class="drop">English <span>▾</span></span></div>
+    <div class="chk"><span class="box">✔</span>One-line summary in chat at login</div>
+    <div class="slider">Window scale <span class="track"></span> 100%</div>
+    <div class="sect">Tips</div>
+    <div class="chk"><span class="box">✔</span>Quests to hand in</div>
+    <div class="chk"><span class="box">✔</span>Unspent talent points</div>
+    <div class="chk"><span class="box">✔</span>Bag space</div>
+    <div class="chk"><span class="box">✔</span>Where to quest next</div>
+    <div class="chk"><span class="box">✔</span>Hunter: ammo</div>
+    <div class="sect">Helpers</div>
+    <div class="dep"><span class="ok">✔</span><span>QuestieDB connected</span></div>
+    <div class="dep"><span class="no">–</span><span>TomTom not installed (optional)</span></div>
+    <div style="margin-top:10px" class="acts"><span class="btn ghost sm">Reset window position</span><span class="btn ghost sm">Show welcome again</span></div>
+  </div>
+</div>
+
+<div class="label">5 · Entry points</div>
+<div class="row">
+  <div class="menu"><div>Addon Compartment</div><div class="hl"><span class="mini"></span>Wowish</div><div><span class="mini" style="background:#666"></span>Questie</div></div>
+  <div class="chat" style="flex:1;min-width:240px"><span class="tag">Wowish</span>: 5 tips. #1: You have 1 unspent talent point. (/wowish)</div>
+</div>
+<p class="note">Login line can be turned off in setup or settings. No minimap button and no pop-ups in v1.</p>
+
+</body>
+</html>

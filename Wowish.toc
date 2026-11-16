@@ -1,0 +1,26 @@
+## Interface: 16001
+## Title: Wowish
+## Notes: Out-of-combat advice: what is worth doing next for your character.
+## Author: SimaAlexandru99
+## Version: @project-version@
+## Category: Quests
+## OptionalDeps: TomTom, QuestieDB
+## X-License: GPL-3.0-or-later
+## SavedVariables: WowishDB
+## IconTexture: Interface\Icons\INV_Misc_Map_01
+## AddonCompartmentFunc: Wowish_OnAddonCompartmentClick
+Core.lua
+Locale.lua
+Questie.lua
+Waypoint.lua
+MinimapGuide.lua
+Navigation.lua
+RulesCommon.lua
+RulesHunter.lua
+TrainerData.lua
+RulesTrainer.lua
+UI.lua
+MinimapButton.lua
+NextBar.lua
+Welcome.lua
+SettingsPanel.lua
