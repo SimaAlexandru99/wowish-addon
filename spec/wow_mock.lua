@@ -120,6 +120,13 @@ function mock.reset()
   _G.UnitClass = function() return mock.class, mock.class, mock.classID end
   _G.UnitRace = function() return "Orc", "Orc", mock.raceID end
   _G.C_SpellBook = { IsSpellKnown = function(id) return mock.known[id] == true end }
+  _G.IsPlayerSpell = function(id) return mock.known[id] == true end
+  mock.money, mock.reputation = 0, {} -- copper; mock.reputation[factionID] = reaction (6 = Honored)
+  _G.GetMoney = function() return mock.money end
+  _G.C_Reputation = { GetFactionDataByID = function(id)
+    local r = mock.reputation[id]
+    return r and { factionID = id, reaction = r } or nil
+  end }
   _G.C_Spell = { GetSpellName = function() return nil end } -- not cached: the data name is used
   _G.UnitFactionGroup = function() return mock.faction, mock.faction end
   _G.INVSLOT_RANGED = 18

@@ -15,6 +15,7 @@ local ICONS = {
   zone = "Interface\\Icons\\INV_Misc_Map_01",
   trainer = "Interface\\Icons\\INV_Misc_Book_09",
   repair = "Interface\\Icons\\Trade_BlackSmithing",
+  fund = "Interface\\Icons\\INV_Misc_Coin_02",
 }
 
 ns.dismissed = {} -- [suggestion id] = text when hidden; the tip returns once its text changes

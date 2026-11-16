@@ -6,6 +6,7 @@ for your character:
 - quests ready to hand in, grouped by where you hand them in;
 - new spells or ranks waiting at your class trainer (and where the nearest one is);
 - gear about to break, and the nearest repair NPC;
+- gold for Apprentice Riding at level 40 (100g, 90g at Honored; not for paladins and warlocks);
 - unspent talent points;
 - bags almost full;
 - where to keep questing (never a dungeon or battleground);

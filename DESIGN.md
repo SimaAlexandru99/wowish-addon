@@ -34,6 +34,7 @@ and the game blocks action-bar and item buttons in combat.
 | turnin | 90 on your map, 70 place unknown, 68 on the way, 60 elsewhere; max 2 | `C_QuestLog` + QuestieDB finisher |
 | trainer | 80 | own class spells due by level/race (`TrainerData.lua`, from OneForAll), known via `C_SpellBook.IsSpellKnown` |
 | repair | 90 below 5% durability, 75 below 20% | `GetInventoryItemDurability`, nearest REPAIR NPC |
+| fund | 30 saving at 30-37, 60 at 38-39, 70 short at 40-41, 85 ready at 40-41 | `GetMoney`, home-faction `C_Reputation` (Honored: 90g), `IsPlayerSpell(33388)` |
 | ammo (Hunter) | 88 none of the right type, 85 outdated | weapon subclass, own ammo table, QuestieDB vendors |
 | bags | 86 at 0 free regular slots (loot lost now), 65 at 1-4 | `C_Container`, bag family 0 only |
 | zone | 50 | quest log headers within ±3 levels, skips dungeon/raid/PvP/profession tags |

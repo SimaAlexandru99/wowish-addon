@@ -20,6 +20,7 @@ RulesHunter.lua
 TrainerData.lua
 RulesTrainer.lua
 RulesRepair.lua
+RulesFund.lua
 Services.lua
 UI.lua
 MinimapButton.lua
