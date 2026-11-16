@@ -14,7 +14,7 @@ read_globals = {
   "UnitClass", "UnitRace", "C_SpellBook", "C_Spell", "IsSpellKnown", "IsPlayerSpell", "UnitFactionGroup", "GetInventoryItemID", "INVSLOT_RANGED", "C_Item", "Enum",
   "DEFAULT_CHAT_FRAME", "UIParent", "TomTom", "time", "strtrim", "geterrorhandler", "Minimap", "GameTooltip", "GetCursorPosition",
   "CreateVector2D", "IsIndoors", "C_CVar", "GetPlayerFacing", "OpenWorldMap", "GetBindingKey", "GetBindingText", "C_AddOns", "GetAddOnMetadata", "GetBuildInfo", "GetLocale",
-  "debugprofilestop", "GetInventoryItemDurability",
+  "debugprofilestop", "GetInventoryItemDurability", "GetMoney", "C_Reputation", "C_SkillInfo",
   "ButtonFrameTemplate_HidePortrait", "ButtonFrameTemplate_HideButtonBar",
   "Settings", "CreateSettingsButtonInitializer", "MinimalSliderWithSteppersMixin", "C_SettingsUtil",
   "securecallfunction",

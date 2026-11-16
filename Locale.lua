@@ -100,6 +100,17 @@ local RO = {
     "Itemele stricate nu mai dau statistici. Orice vendor de armuri sau arme le repara.",
   ["Nearest flight master: %s (%s). Not checked whether you know this flight path."] =
     "Cel mai apropiat zbor: %s (%s). Nu stiu daca ai descoperit deja aceasta ruta.",
+  ["Gold for riding"] = "Aur pentru riding",
+  ["Save for %s at level %d: %s of %s."] = "Strange pentru %s la nivelul %d: %s din %s.",
+  ["%s costs %s: you need %s more."] = "%s costa %s: iti mai trebuie %s.",
+  ["Train %s at your race's riding trainer: you have the %s."] =
+    "Invata %s la trainerul de riding al rasei tale: ai cei %s.",
+  ["Your first mount comes with it."] = "Primul mount vine cu el.",
+  ["Mounted speed goes to 100%."] = "Viteza pe mount creste la 100%.",
+  ["You get the Honored price."] = "Ai pretul de Honored.",
+  ["Honored with your home faction takes 10% off."] = "Honored cu factiunea ta de acasa scade pretul cu 10%.",
+  ["riding trainer"] = "trainer de riding",
+  ["Dual spec (50g at level 40) can wait."] = "Dual spec (50g la nivelul 40) poate astepta.",
   ["Window position"] = "Pozitia ferestrei",
   ["Reset"] = "Reseteaza",
   ["Welcome screen"] = "Ecranul de bun venit",

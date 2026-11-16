@@ -10,7 +10,7 @@ local category
 local RULE_LABELS = {
   { "turnin", "Quests to hand in" }, { "talents", "Unspent talent points" }, { "bags", "Bag space" },
   { "zone", "Where to quest next" }, { "ammo", "Hunter: ammo" }, { "trainer", "Class trainer" },
-  { "repair", "Repairs" },
+  { "repair", "Repairs" }, { "fund", "Gold for riding" },
 }
 
 local function checkbox(key, name, get, set, tooltip)
