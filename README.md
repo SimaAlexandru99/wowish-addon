@@ -1,12 +1,13 @@
 # Wowish
 
-A small, passive advisor for **WoW Forever** (1.60.1). Out of combat it shows the few things worth doing next
-for your character:
+A small, passive advisor for **WoW Forever** (1.60.1), for players who want no leveling guide: no route, no
+arrow to follow, no quests taken for you. Out of combat it shows the few things worth doing next for your character:
 
 - quests ready to hand in, grouped by where you hand them in;
 - new spells or ranks waiting at your class trainer (and where the nearest one is);
 - gear about to break, and the nearest repair NPC;
-- gold for Apprentice Riding at level 40 (100g, 90g at Honored; not for paladins and warlocks);
+- gold for riding: saving from level 30 for Apprentice Riding at 40 (100g, 90g at Honored; paladins and warlocks
+  get it from a class quest) and from 50 for Journeyman Riding at 60 (1000g), then the way to your riding trainer;
 - unspent talent points;
 - bags almost full;
 - where to keep questing (never a dungeon or battleground);

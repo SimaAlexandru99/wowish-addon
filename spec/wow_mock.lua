@@ -121,7 +121,10 @@ function mock.reset()
   _G.UnitRace = function() return "Orc", "Orc", mock.raceID end
   _G.C_SpellBook = { IsSpellKnown = function(id) return mock.known[id] == true end }
   _G.IsPlayerSpell = function(id) return mock.known[id] == true end
-  mock.money, mock.reputation = 0, {} -- copper; mock.reputation[factionID] = reaction (6 = Honored)
+  mock.money, mock.reputation, mock.ridingMax = 0, {}, nil -- copper; [factionID] = reaction (6 = Honored)
+  _G.C_SkillInfo = { GetSkillLineInfoByID = function(id)
+    if id == 762 and mock.ridingMax then return { skillID = 762, rank = 1, maxRank = mock.ridingMax } end
+  end }
   _G.GetMoney = function() return mock.money end
   _G.C_Reputation = { GetFactionDataByID = function(id)
     local r = mock.reputation[id]

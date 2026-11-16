@@ -2,9 +2,9 @@ local mock = require("spec.wow_mock")
 local FILES = { "Core.lua", "Locale.lua", "RulesFund.lua" }
 
 local G = 10000 -- copper per gold
-local ORGRIMMAR, RIDING = 76, 33388
+local ORGRIMMAR, APPRENTICE = 76, 33388
 
-describe("gold for riding at 40", function()
+describe("gold for riding", function()
   local ns
   local function fund()
     return ns.ruleById.fund.evaluate()
@@ -17,9 +17,9 @@ describe("gold for riding at 40", function()
     mock.fire("ADDON_LOADED", "Wowish")
   end)
 
-  it("tracks savings from level 30, more urgent at 38-39", function()
+  it("tracks savings for Apprentice Riding from level 30, more urgent at 38-39", function()
     local s = fund()[1]
-    assert.equal("Save for riding at level 40: 63g of 100g.", s.what)
+    assert.equal("Save for Apprentice Riding at level 40: 63g of 100g.", s.what)
     assert.equal(30, s.priority)
     assert.matches("Dual spec", s.why)
     mock.level = 38
@@ -28,50 +28,68 @@ describe("gold for riding at 40", function()
     assert.equal(0, #fund())
   end)
 
-  it("is quiet once the gold is saved before 40", function()
+  it("is quiet once the gold is saved before 40, and between the tiers", function()
     mock.money = 100 * G
+    assert.equal(0, #fund())
+    mock.level, mock.money = 45, 0
     assert.equal(0, #fund())
   end)
 
   it("takes 10% off at Honored with the home faction, never for Skyborne", function()
     mock.reputation[ORGRIMMAR] = 6
-    assert.equal("Save for riding at level 40: 63g of 90g.", fund()[1].what)
+    assert.matches("of 90g%.$", fund()[1].what)
     mock.reputation[ORGRIMMAR] = 5 -- Friendly
-    assert.matches("of 100g", fund()[1].what)
+    assert.matches("of 100g%.$", fund()[1].what)
     mock.reputation[ORGRIMMAR] = 6
     mock.raceID = 95 -- Skyborne: no discount even if Honored somewhere
-    assert.matches("of 100g", fund()[1].what)
+    assert.matches("of 100g%.$", fund()[1].what)
   end)
 
-  it("says nothing to paladins and warlocks, who get riding from a class quest", function()
+  it("skips Apprentice Riding for paladins and warlocks, not Journeyman", function()
     for _, class in ipairs({ "PALADIN", "WARLOCK" }) do
-      mock.class = class
+      mock.class, mock.level = class, 34
       assert.equal(0, #fund(), class)
+      mock.level = 55
+      assert.matches("Journeyman", fund()[1].what, class)
     end
   end)
 
-  it("at 40: train now when the gold is there, else the exact shortfall rounded up", function()
-    mock.level, mock.money = 40, 100 * G
+  it("at 40: shortfall rounded up, then the way to your race's riding trainer", function()
+    mock.level, mock.money = 40, 99 * G + 5000 -- 50s short shows as 1g, not 0g
     local s = fund()[1]
-    assert.equal(85, s.priority)
-    assert.matches("Train Apprentice Riding", s.what)
-    mock.money = 99 * G + 5000 -- 99g 50s: 50s short shows as 1g, not 0g
-    s = fund()[1]
     assert.equal(70, s.priority)
-    assert.equal("Riding costs 100g: you need 1g more.", s.what)
+    assert.equal("Apprentice Riding costs 100g: you need 1g more.", s.what)
+    mock.money = 100 * G
+    s = fund()[1]
+    assert.equal(85, s.priority)
+    assert.equal("Train Apprentice Riding at your race's riding trainer: you have the 100g.", s.what)
+    assert.same({ 1454, "Wowish: Kildar (riding trainer)" }, { s.waypoint.map, s.waypoint.title }) -- Orgrimmar
+    mock.raceID = 95
+    assert.equal(2521, fund()[1].waypoint.map) -- Skyborne: Zephras Isle
   end)
 
-  it("stops once riding is learned, and after level 41 in any case", function()
+  it("Journeyman at 60: 1000g, 900g at Honored", function()
+    mock.level, mock.money, mock.ridingMax = 52, 400 * G, 75 -- has Apprentice
+    assert.equal("Save for Journeyman Riding at level 60: 400g of 1000g.", fund()[1].what)
+    mock.reputation[ORGRIMMAR] = 7
+    assert.matches("of 900g%.$", fund()[1].what)
+  end)
+
+  it("stops once riding is learned: by spell, or by the riding skill when the spell ID differs", function()
     mock.level, mock.money = 40, 100 * G
-    mock.known[RIDING] = true
+    mock.known[APPRENTICE] = true
     assert.equal(0, #fund())
-    mock.known[RIDING] = nil
-    mock.level = 42
+    mock.known[APPRENTICE] = nil
+    mock.ridingMax = 75
+    assert.equal(0, #fund())
+    mock.level, mock.money = 60, 1000 * G
+    assert.equal(85, fund()[1].priority) -- Apprentice only: Journeyman still to train
+    mock.ridingMax = 150
     assert.equal(0, #fund())
   end)
 
   it("has a Romanian text for every message", function()
     ns.db.locale = "roRO"
-    assert.matches("^Strange pentru riding", fund()[1].what)
+    assert.matches("^Strange pentru Apprentice Riding", fund()[1].what)
   end)
 end)
