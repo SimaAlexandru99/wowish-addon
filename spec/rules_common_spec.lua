@@ -31,8 +31,10 @@ describe("common rules", function()
         H("The Barrens"), Q(1, "A", 20), Q(2, "Hidden", 20, { isHidden = true }), Q(3, "Bonus", 20, { isTask = true }),
         H("Ashenvale"), Q(4, "B", 22, { complete = true }),
       }
+      table.insert(mock.questLog, Q(5, nil, 20)) -- title not cached yet
       local log = ns.ReadQuestLog()
-      assert.equal(2, #log)
+      assert.equal(3, #log)
+      assert.equal("?", log[3].title)
       assert.same({ "The Barrens", false }, { log[1].header, log[1].complete })
       assert.same({ "Ashenvale", true }, { log[2].header, log[2].complete })
     end)

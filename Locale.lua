@@ -57,8 +57,8 @@ local RO = {
   ["waypoint set: %s (%s)."] = "waypoint pus: %s (%s).",
   ["waypoint removed."] = "waypoint sters.",
   ["no Wowish waypoint is set."] = "niciun waypoint Wowish activ.",
-  ["/wowish (window), /wowish go N (waypoint), /wowish clear, /wowish welcome"] =
-    "/wowish (fereastra), /wowish go N (waypoint), /wowish clear, /wowish welcome",
+  ["/wowish (window), /wowish go N (take me there), /wowish clear, /wowish welcome, /wowish report"] =
+    "/wowish (fereastra), /wowish go N (du-ma acolo), /wowish clear, /wowish welcome, /wowish report",
   ["nothing urgent right now. (/wowish)"] = "nimic urgent acum. (/wowish)",
   ["%s. #1: %s (/wowish)"] = "%s. #1: %s (/wowish)",
   -- welcome

@@ -36,7 +36,7 @@ function ns.ReadQuestLog()
       header = info.title
     elseif info and info.questID and not info.isHidden and not info.isTask then
       out[#out + 1] = {
-        id = info.questID, title = info.title, level = info.level, header = header,
+        id = info.questID, title = info.title or "?", level = info.level, header = header, -- title can be uncached
         complete = QL.IsComplete(info.questID),
       }
     end

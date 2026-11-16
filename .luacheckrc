@@ -13,7 +13,7 @@ read_globals = {
   "C_Map", "C_SuperTrack", "UiMapPoint",
   "UnitClass", "UnitRace", "C_SpellBook", "C_Spell", "IsSpellKnown", "IsPlayerSpell", "UnitFactionGroup", "GetInventoryItemID", "INVSLOT_RANGED", "C_Item", "Enum",
   "DEFAULT_CHAT_FRAME", "UIParent", "TomTom", "time", "strtrim", "geterrorhandler", "Minimap", "GameTooltip", "GetCursorPosition",
-  "CreateVector2D", "IsIndoors", "C_CVar", "GetPlayerFacing", "OpenWorldMap", "GetBindingKey", "GetBindingText",
+  "CreateVector2D", "IsIndoors", "C_CVar", "GetPlayerFacing", "OpenWorldMap", "GetBindingKey", "GetBindingText", "C_AddOns", "GetAddOnMetadata", "GetBuildInfo", "GetLocale",
   "ButtonFrameTemplate_HidePortrait", "ButtonFrameTemplate_HideButtonBar",
   "Settings", "CreateSettingsButtonInitializer", "MinimalSliderWithSteppersMixin", "C_SettingsUtil",
   "securecallfunction",

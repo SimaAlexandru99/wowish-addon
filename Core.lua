@@ -36,6 +36,20 @@ local function applyDefaults(db, defaults)
 end
 ns.applyDefaults = applyDefaults
 
+-- Values a hand-edited or old WowishDB may hold in the wrong shape: reset them instead of failing later
+-- (a string scale or a short position would stop the window from opening).
+local function sanitize(db)
+  if type(db.scale) ~= "number" or db.scale < 0.7 or db.scale > 1.5 then db.scale = 1 end
+  if type(db.minimapAngle) ~= "number" then db.minimapAngle = 200 end
+  local p = db.pos
+  if p ~= nil and not (type(p) == "table" and type(p[1]) == "string" and type(p[2]) == "string"
+      and type(p[3]) == "number" and type(p[4]) == "number") then
+    db.pos = nil
+  end
+  return db
+end
+ns.sanitize = sanitize
+
 local frame = CreateFrame("Frame")
 ns.frame = frame
 
@@ -66,7 +80,10 @@ end
 
 -- Hand an error to the client's error handler (BugSack/BugGrabber, or the default script error frame)
 -- without letting it stop the caller: one broken rule or listener must not hide the others.
+ns.recentErrors = {} -- the last three, for /wowish report
 local function report(err)
+  table.insert(ns.recentErrors, 1, tostring(err):sub(1, 160))
+  ns.recentErrors[4] = nil
   local handler = geterrorhandler and geterrorhandler()
   if handler then pcall(handler, err) end
   return err
@@ -137,7 +154,7 @@ frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 frame:SetScript("OnEvent", function(_, event, arg1)
   if event == "ADDON_LOADED" then
     if arg1 == addonName then
-      WowishDB = applyDefaults(type(WowishDB) == "table" and WowishDB or {}, DEFAULTS)
+      WowishDB = sanitize(applyDefaults(type(WowishDB) == "table" and WowishDB or {}, DEFAULTS))
       ns.db = WowishDB
     end
   elseif event == "PLAYER_REGEN_ENABLED" then

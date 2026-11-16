@@ -8,7 +8,7 @@ function mock.reset()
   _G.WowishDB = nil
 
   _G.CreateFrame = function(_, name, _, template)
-    local f = mock.widget({ template = template })
+    local f = mock.widget({ template = template or false })
     if template == "UIPanelScrollFrameTemplate" then f.ScrollBar = mock.widget() end -- as the real template
     if name then _G[name] = f end
     mock.frames[#mock.frames + 1] = f
@@ -43,6 +43,9 @@ function mock.reset()
   _G.time = function() return mock.now end
   _G.strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
   _G.UnitName = function() return "Tester" end
+  _G.C_AddOns = { GetAddOnMetadata = function(_, key) return key == "Version" and "v0.3.0-test" or nil end }
+  _G.GetBuildInfo = function() return "1.60.1", "70938" end
+  _G.GetLocale = function() return "enUS" end
 
   -- Settings panel: mock.settings[variable] = { name, get, set }, mock.buttons[name] = onClick.
   mock.settings, mock.buttons, mock.openedCategory, mock.registeredCategory = {}, {}, nil, nil
@@ -257,11 +260,28 @@ local WIDGET = {
   SetTitle = function(self, t) self.title = t end,
   GetChecked = function(self) return self.checked end,
 }
+-- Widget methods the addon may call without the test caring about the effect. Each name was checked
+-- against the Forever 1.60.1 widget API (wow-api get_widget_methods: Frame, Button, FontString, Texture,
+-- ScrollFrame, CheckButton, Minimap), except the template mixins marked below. Any other name fails the test,
+-- so a misspelt or non-existent Blizzard method is caught here instead of in game.
+local NOOP = {}
+for name in ([[SetSize SetWidth SetJustifyH SetJustifyV ClearAllPoints SetFrameStrata SetFrameLevel SetClampedToScreen
+  RegisterForDrag RegisterForClicks EnableMouse StartMoving StopMovingOrSizing SetMovable SetWordWrap SetScrollChild
+  SetNormalFontObject SetHighlightFontObject SetHighlightTexture GetZoom
+  SetBackdrop SetBackdropColor SetBackdropBorderColor SetOwner]]):gmatch("%S+") do -- last line: template mixins
+  NOOP[name] = true
+end
+local function noop() end
+
 function mock.widget(fields)
   local w = { events = {}, scripts = {}, shown = true }
   for k, v in pairs(fields or {}) do w[k] = v end
   mock.widgets[#mock.widgets + 1] = w
-  return setmetatable(w, { __index = function(_, k) return WIDGET[k] or function() end end })
+  return setmetatable(w, { __index = function(_, k)
+    if WIDGET[k] then return WIDGET[k] end
+    if NOOP[k] then return noop end
+    error("mock: unknown widget method or field '" .. tostring(k) .. "'", 2)
+  end })
 end
 
 function mock.lastChat() return mock.chat[#mock.chat] end

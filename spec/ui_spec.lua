@@ -173,6 +173,19 @@ describe("UI", function()
     assert.same({ "TOPLEFT", UIParent, "TOPLEFT", 100, -50 }, _G.WowishFrame.point)
   end)
 
+  it("prints a report to paste into bug reports", function()
+    ns.RegisterRule({ id = "broken", evaluate = function() error("boom") end })
+    ns.Evaluate()
+    mock.chat = {}
+    slash("report")
+    assert.matches("Wowish v0%.3%.0%-test | game 1%.60%.1 %(70938%) | enUS", mock.chat[1])
+    assert.matches("QuestieDB: missing | TomTom: no | ShortestPathForever: no", mock.chat[2])
+    assert.matches("failing rules: broken", mock.chat[3])
+    assert.matches("error 1: .*boom", mock.chat[4])
+    for i = 1, 5 do ns.report("e" .. i) end
+    assert.same({ "e5", "e4", "e3" }, ns.recentErrors) -- newest first, only three kept
+  end)
+
   it("formats the update age", function()
     assert.equal("not updated yet", ns.AgeText(nil))
     assert.equal("updated just now", ns.AgeText(mock.now - 30))
