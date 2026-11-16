@@ -93,6 +93,13 @@ local RO = {
   ["Where to quest next"] = "Unde continui questurile",
   ["Hunter: ammo"] = "Hunter: munitie",
   ["Class trainer"] = "Trainer de clasa",
+  ["Repairs"] = "Reparatii",
+  ["repairs"] = "reparatii",
+  ["Repair your gear: one item is at %d%% durability."] = "Repara echipamentul: un item are %d%% durabilitate.",
+  ["Broken items stop giving their stats. Any armor or weapon vendor can repair them."] =
+    "Itemele stricate nu mai dau statistici. Orice vendor de armuri sau arme le repara.",
+  ["Nearest flight master: %s (%s). Not checked whether you know this flight path."] =
+    "Cel mai apropiat zbor: %s (%s). Nu stiu daca ai descoperit deja aceasta ruta.",
   ["Window position"] = "Pozitia ferestrei",
   ["Reset"] = "Reseteaza",
   ["Welcome screen"] = "Ecranul de bun venit",

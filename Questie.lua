@@ -70,6 +70,13 @@ local function finisher(questID)
   return nil, "unknown"
 end
 
+-- Place of one NPC (single spawn outside instances) or nil; QuestieDB errors count as "no place".
+function ns.NpcPlace(npcID)
+  if not ns.Questie() then return nil end
+  local ok, p = pcall(place, lib.Npc, npcID)
+  return ok and p or nil
+end
+
 -- Vendors of itemID friendly to faction ("Horde"/"Alliance") that have one known place.
 local function vendors(itemID, faction)
   local letter, out = faction:sub(1, 1), {}

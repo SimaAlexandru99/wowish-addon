@@ -19,6 +19,8 @@ RulesCommon.lua
 RulesHunter.lua
 TrainerData.lua
 RulesTrainer.lua
+RulesRepair.lua
+Services.lua
 UI.lua
 MinimapButton.lua
 NextBar.lua

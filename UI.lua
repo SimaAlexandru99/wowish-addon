@@ -14,6 +14,7 @@ local ICONS = {
   ammo = "Interface\\Icons\\INV_Ammo_Arrow_02",
   zone = "Interface\\Icons\\INV_Misc_Map_01",
   trainer = "Interface\\Icons\\INV_Misc_Book_09",
+  repair = "Interface\\Icons\\Trade_BlackSmithing",
 }
 
 ns.dismissed = {} -- [suggestion id] = text when hidden; the tip returns once its text changes
@@ -265,14 +266,17 @@ function ns.Go(n)
   local w = s.waypoint
   if not w then return ns.Say(string.format(L["tip %d has no known place."], n)) end
   local how = ns.TakeMeThere(w, w.title)
-  if how == "combat" then
-    ns.Say(L["in combat: waypoints are paused."])
-  elseif how == "route" then
-    ns.Say(string.format(L["route started with ShortestPathForever: %s."], w.title))
-  elseif how == "chat" then
+  if how == "combat" then return ns.Say(L["in combat: waypoints are paused."]) end
+  if how == "route" then return ns.Say(string.format(L["route started with ShortestPathForever: %s."], w.title)) end
+  if how == "chat" then
     ns.Say(string.format(L["no waypoint addon or map pin available. Go to %s."], ns.FormatPlace(w)))
   else
     ns.Say(string.format(L["waypoint set: %s (%s)."], w.title, ns.FormatPlace(w)))
+  end
+  local fm = ns.FlightHint and ns.FlightHint(w)
+  if fm then
+    ns.Say(string.format(L["Nearest flight master: %s (%s). Not checked whether you know this flight path."],
+      fm.place.name or "?", ns.FormatPlace(fm.place)))
   end
 end
 
