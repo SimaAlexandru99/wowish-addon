@@ -90,6 +90,19 @@ describe("QuestieDB integration", function()
     assert.equal(1, #mock.reported)
   end)
 
+  it("reads QuestieDB zone tables without access to globals", function()
+    mock.questieDB({ [10] = { npc = 1 } }, { [1] = { name = "N", spawns = { [17] = { { 50, 50 } } } } })
+    local zdb = _G.LibQuestieDB.Support.Get()
+    _G.LibQuestieDB.Support.Get = function()
+      -- a global write lands in the sandbox; a global read sees nothing (LibQuestieDB exists outside)
+      zdb.private.areaIdToUiMapId = "WowishDB = 'pwned'; return { [17] = LibQuestieDB and 1440 or 1413 }"
+      return zdb
+    end
+    load()
+    assert.equal(1413, ns.QuestFinisher(10).map)
+    assert.is_not_equal("pwned", _G.WowishDB)
+  end)
+
   it("survives a QuestieDB that throws", function()
     mock.questieDB({}, {})
     _G.LibQuestieDB.Quest.finishedBy = function() error("schema changed") end

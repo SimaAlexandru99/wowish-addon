@@ -26,6 +26,7 @@ local function asTable(src)
   if type(src) == "table" then return src end
   if type(src) ~= "string" then return nil end
   local fn = loadstring(src)
+  if fn and setfenv then setfenv(fn, {}) end -- a table literal needs no globals; deny them to foreign code
   local ok, t = pcall(fn or error)
   return ok and type(t) == "table" and t or nil
 end

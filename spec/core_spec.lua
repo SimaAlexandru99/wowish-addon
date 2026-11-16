@@ -25,6 +25,20 @@ describe("Core", function()
       assert.equal(WowishDB, ns.db)
     end)
 
+    it("repairs wrong-shaped settings instead of failing later", function()
+      _G.WowishDB = { scale = "big", pos = { "CENTER" }, minimapAngle = "x" }
+      mock.fire("ADDON_LOADED", "Wowish")
+      assert.equal(1, WowishDB.scale)
+      assert.is_nil(WowishDB.pos)
+      assert.equal(200, WowishDB.minimapAngle)
+      mock.reset()
+      ns = mock.load(CORE)
+      _G.WowishDB = { scale = 9, pos = { "TOPLEFT", "TOPLEFT", 10, -10 } }
+      mock.fire("ADDON_LOADED", "Wowish")
+      assert.equal(1, WowishDB.scale) -- out of range
+      assert.same({ "TOPLEFT", "TOPLEFT", 10, -10 }, WowishDB.pos) -- valid: kept
+    end)
+
     it("ignores other addons and replaces a corrupt value", function()
       mock.fire("ADDON_LOADED", "SomethingElse")
       assert.is_nil(ns.db)

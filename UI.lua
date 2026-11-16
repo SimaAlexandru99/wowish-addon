@@ -276,6 +276,28 @@ function ns.Go(n)
   end
 end
 
+-- One block a player can copy into a bug report: versions, helpers, what the rules are doing, recent errors.
+function ns.ReportLines()
+  if ns.Questie then ns.Questie() end -- fresh helper status even if no tip needed QuestieDB yet
+  local meta = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+  local version = meta and meta("Wowish", "Version") or "?"
+  local game, gameBuild = "?", "?"
+  if GetBuildInfo then game, gameBuild = GetBuildInfo() end
+  local failing = {}
+  for id in pairs(ns.errors) do failing[#failing + 1] = id end
+  table.sort(failing)
+  local lines = {
+    string.format("Wowish %s | game %s (%s) | %s", version, tostring(game), tostring(gameBuild),
+      GetLocale and GetLocale() or "?"),
+    string.format("QuestieDB: %s | TomTom: %s | ShortestPathForever: %s", tostring(ns.questieStatus or "not checked"),
+      (TomTom and TomTom.AddWaypoint) and "yes" or "no", (ns.RoutePlanner and ns.RoutePlanner()) and "yes" or "no"),
+    string.format("tips: %d | failing rules: %s", #ns.suggestions,
+      #failing > 0 and table.concat(failing, ", ") or "none"),
+  }
+  for i, err in ipairs(ns.recentErrors) do lines[#lines + 1] = string.format("error %d: %s", i, err) end
+  return lines
+end
+
 local function onSlash(msg)
   msg = strtrim((msg or ""):lower())
   local n = msg:match("^go%s+(%d+)$")
@@ -285,10 +307,12 @@ local function onSlash(msg)
     ns.Go(tonumber(n))
   elseif msg == "clear" then
     ns.Say(ns.StopNavigation() and L["waypoint removed."] or L["no Wowish waypoint is set."])
+  elseif msg == "report" then
+    for _, line in ipairs(ns.ReportLines()) do ns.Say(line) end
   elseif msg == "welcome" and ns.ShowWelcome then
     ns.ShowWelcome()
   else
-    ns.Say(L["/wowish (window), /wowish go N (waypoint), /wowish clear, /wowish welcome"])
+    ns.Say(L["/wowish (window), /wowish go N (take me there), /wowish clear, /wowish welcome, /wowish report"])
   end
 end
 

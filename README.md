@@ -20,6 +20,7 @@ click one. English and Romanian.
 - Hover a card for its full text and a small x to hide it. Cards with a place have Take me there, the zone tip
   has Map, and talent, trainer and bag tips name the key that opens that window. Buttons never act for you.
 - `/wowish go N`: take me there for tip N. `/wowish clear`: stop it. `/wowish welcome`: the welcome screen.
+  `/wowish report`: versions, helpers and recent errors, to paste into a bug report.
 - Options > AddOns > Wowish: language, login line, window size, which tips to show.
 
 ## Optional helpers
