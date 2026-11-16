@@ -4,7 +4,8 @@ A small, passive advisor for **WoW Forever** (1.60.1). Out of combat it shows th
 for your character:
 
 - quests ready to hand in, grouped by where you hand them in;
-- new spells or ranks waiting at your class trainer;
+- new spells or ranks waiting at your class trainer (and where the nearest one is);
+- gear about to break, and the nearest repair NPC;
 - unspent talent points;
 - bags almost full;
 - where to keep questing (never a dungeon or battleground);
@@ -24,7 +25,7 @@ click one. English and Romanian.
 - Options > AddOns > Wowish: language, login line, window size, which tips to show.
 
 ## Optional helpers
-- **QuestieDB**: adds where to go (turn-in NPCs, ammo vendors). Read at run time; nothing is copied.
+- **QuestieDB**: adds where to go (turn-in NPCs, ammo vendors, class trainers, repair NPCs, flight masters). Read at run time; nothing is copied.
 - **TomTom**: waypoints use its arrow; without it, the game's own map pin.
 - **ShortestPathForever**: "Take me there" asks it for the real route (walking, flights, boats, portals), drawn on
   the map and minimap, and cards show the travel time. Without it, Wowish draws a straight-line guide on the

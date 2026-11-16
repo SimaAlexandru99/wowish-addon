@@ -50,6 +50,16 @@ function ns.TrainerSpellsDue()
   return due
 end
 
+-- A trainer of the player's class: QuestieDB's subname, e.g. "Hunter Trainer" (not "Pet Trainer").
+local function myClassTrainer(entry)
+  local sub = (entry.subName or ""):lower()
+  local name, file = UnitClass("player")
+  for _, word in ipairs({ name or "", file and (file:sub(1, 1) .. file:sub(2):lower()) or "" }) do
+    if word ~= "" and sub:find(word:lower(), 1, true) then return true end
+  end
+  return false
+end
+
 ns.RegisterRule({
   id = "trainer", events = { "PLAYER_LEVEL_UP", "SPELLS_CHANGED" },
   evaluate = function()
@@ -58,8 +68,11 @@ ns.RegisterRule({
     local names, all = {}, {}
     for i, s in ipairs(due) do all[i] = spellName(s) end
     for i = 1, math.min(#due, 4) do names[i] = all[i] end
+    local trainer = ns.NearestService and ns.NearestService("trainer", myClassTrainer)
+    local waypoint = trainer and { map = trainer.place.map, x = trainer.place.x, y = trainer.place.y,
+      title = string.format("Wowish: %s (%s)", trainer.place.name or "?", trainer.subName or "?") }
     return { {
-      id = "trainer", kind = "trainer", priority = 80, details = all, hint = "spellbook",
+      id = "trainer", kind = "trainer", priority = 80, details = all, hint = "spellbook", waypoint = waypoint,
       what = string.format(L["Visit your class trainer: %s (%s)."], ns.Count(#due, "new spell"),
         table.concat(names, ", ") .. (#due > 4 and ", ..." or "")),
       why = L["New ranks are stronger versions of spells you already use, and trainers teach them for a small fee."],

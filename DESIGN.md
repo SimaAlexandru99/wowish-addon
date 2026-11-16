@@ -10,6 +10,8 @@ client events ──► Core.lua: throttled (1 s), never in combat ──► rul
                RulesCommon.lua (turn-ins, talents, bags, next zone), RulesHunter.lua (ammo), RulesTrainer.lua
                                                                   │
          Questie.lua ── optional ──► LibQuestieDB (QuestieDB addon, contract 4): turn-in NPC, ammo vendors
+         Services.lua: one background scan per session (2 ms/frame, paused in combat) of QuestieDB NPC flags
+         (Enum.npcFlags TRAINER / FLIGHT_MASTER / REPAIR) -> nearest class trainer, repair NPC, flight master
          Navigation.lua "Take me there": ShortestPathForever.API route (owner "Wowish") ► else Waypoint.lua
          (TomTom ► native pin ► chat) + MinimapGuide.lua (straight-line dots + edge arrow, honours rotateMinimap)
          Welcome.lua (first login), SettingsPanel.lua (Options > AddOns > Wowish), Locale.lua (English / Romanian)
@@ -31,6 +33,7 @@ and the game blocks action-bar and item buttons in combat.
 | talents | 95 | `C_ClassTalents.HasUnspentTalentPoints` |
 | turnin | 90 on your map, 70 place unknown, 68 on the way, 60 elsewhere; max 2 | `C_QuestLog` + QuestieDB finisher |
 | trainer | 80 | own class spells due by level/race (`TrainerData.lua`, from OneForAll), known via `C_SpellBook.IsSpellKnown` |
+| repair | 90 below 5% durability, 75 below 20% | `GetInventoryItemDurability`, nearest REPAIR NPC |
 | ammo (Hunter) | 88 none of the right type, 85 outdated | weapon subclass, own ammo table, QuestieDB vendors |
 | bags | 86 at 0 free regular slots (loot lost now), 65 at 1-4 | `C_Container`, bag family 0 only |
 | zone | 50 | quest log headers within ±3 levels, skips dungeon/raid/PvP/profession tags |

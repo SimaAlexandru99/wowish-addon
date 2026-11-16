@@ -46,6 +46,13 @@ function mock.reset()
   _G.C_AddOns = { GetAddOnMetadata = function(_, key) return key == "Version" and "v0.3.0-test" or nil end }
   _G.GetBuildInfo = function() return "1.60.1", "70938" end
   _G.GetLocale = function() return "enUS" end
+  mock.clock = 0 -- ms; tests advance it to exhaust the scan's per-frame budget
+  _G.debugprofilestop = function() return mock.clock end
+  mock.durability = {} -- [slot] = { cur, max }
+  _G.GetInventoryItemDurability = function(slot)
+    local d = mock.durability[slot]
+    if d then return d[1], d[2] end
+  end
 
   -- Settings panel: mock.settings[variable] = { name, get, set }, mock.buttons[name] = onClick.
   mock.settings, mock.buttons, mock.openedCategory, mock.registeredCategory = {}, {}, nil, nil
@@ -201,6 +208,14 @@ function mock.questieDB(quests, npcs, objects, contractOk, itemVendors)
       name = function(id) return (rows[id] or {}).name end,
       spawns = function(id) return (rows[id] or {}).spawns end,
       friendlyToFaction = function(id) return (rows[id] or {}).friendly end,
+      npcFlags = function(id) return (rows[id] or {}).flags end,
+      subName = function(id) return (rows[id] or {}).sub end,
+      GetAllIds = function()
+        local list = {}
+        for id in pairs(rows) do list[#list + 1] = id end
+        table.sort(list)
+        return list
+      end,
     }
   end
   _G.LibQuestieDB = {
@@ -213,6 +228,7 @@ function mock.questieDB(quests, npcs, objects, contractOk, itemVendors)
     Npc = entity(npcs or {}),
     Object = entity(objects or {}),
     Item = { vendors = function(id) return (itemVendors or {})[id] end },
+    Enum = { npcFlags = { FLIGHT_MASTER = 8, TRAINER = 16, REPAIR = 16384 } }, -- Forever values
     Support = { Get = function() return { private = {
       areaIdToUiMapId = "return { [17] = 1413, [331] = 1440, [1638] = 1456, [400] = 999 }",
       areaIdToUiMapIdOverride = "return { [400] = 0 }",

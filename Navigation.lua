@@ -38,6 +38,15 @@ function ns.TakeMeThere(place, title)
   return how
 end
 
+-- Without a route planner, for a far target (other continent, or over 1000 yards): the nearest flight master,
+-- whether or not the player knows its flight path (that is not checked).
+function ns.FlightHint(place)
+  if planner() or not ns.NearestService then return nil end
+  local east, north = ns.GuideOffset(place)
+  if east and math.sqrt(east * east + north * north) < 1000 then return nil end
+  return (ns.NearestService("flight"))
+end
+
 -- Stops what Wowish started: our ShortestPathForever journey, waypoint and minimap guide. True if anything stopped.
 function ns.StopNavigation()
   local stopped = false
