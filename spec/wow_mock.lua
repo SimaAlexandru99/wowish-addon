@@ -259,15 +259,20 @@ local WIDGET = {
   SetChecked = function(self, on) self.checked = on end,
   SetTitle = function(self, t) self.title = t end,
   GetChecked = function(self) return self.checked end,
+  CreateAnimationGroup = function(self) self.animGroup = mock.widget() return self.animGroup end,
+  CreateAnimation = function() return mock.widget() end,
+  Play = function(self) self.plays = (rawget(self, "plays") or 0) + 1 end,
 }
 -- Widget methods the addon may call without the test caring about the effect. Each name was checked
 -- against the Forever 1.60.1 widget API (wow-api get_widget_methods: Frame, Button, FontString, Texture,
--- ScrollFrame, CheckButton, Minimap), except the template mixins marked below. Any other name fails the test,
+-- ScrollFrame, CheckButton, Minimap, AnimationGroup, Alpha), except the template mixins marked below.
+-- Any other name fails the test,
 -- so a misspelt or non-existent Blizzard method is caught here instead of in game.
 local NOOP = {}
 for name in ([[SetSize SetWidth SetJustifyH SetJustifyV ClearAllPoints SetFrameStrata SetFrameLevel SetClampedToScreen
   RegisterForDrag RegisterForClicks EnableMouse StartMoving StopMovingOrSizing SetMovable SetWordWrap SetScrollChild
   SetNormalFontObject SetHighlightFontObject SetHighlightTexture GetZoom
+  SetBlendMode SetAlpha SetAllPoints SetToFinalAlpha Stop SetFromAlpha SetToAlpha SetDuration SetSmoothing SetOrder
   SetBackdrop SetBackdropColor SetBackdropBorderColor SetOwner]]):gmatch("%S+") do -- last line: template mixins
   NOOP[name] = true
 end

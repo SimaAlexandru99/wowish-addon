@@ -5,7 +5,8 @@ local _, ns = ...
 local L = ns.L
 
 local ICON = "Interface\\Icons\\INV_Misc_Map_01"
-local button, badge
+local button, badge, flash
+local lastCount -- nil until the first count after login: tips found at login do not flash
 
 local function place()
   local angle = math.rad(ns.db.minimapAngle or 200)
@@ -55,6 +56,26 @@ local function build()
   border:SetPoint("TOPLEFT")
   badge = button:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
   badge:SetPoint("BOTTOMRIGHT", -3, 4)
+  -- One short glow when a new tip arrives: a passive advisor needs a hint that something changed, not a loop.
+  local glow = button:CreateTexture(nil, "OVERLAY")
+  glow:SetTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+  glow:SetBlendMode("ADD")
+  glow:SetAllPoints(button)
+  glow:SetAlpha(0)
+  flash = glow:CreateAnimationGroup()
+  flash:SetToFinalAlpha(true)
+  local up = flash:CreateAnimation("Alpha")
+  up:SetFromAlpha(0)
+  up:SetToAlpha(0.9)
+  up:SetDuration(0.15)
+  up:SetSmoothing("OUT")
+  up:SetOrder(1)
+  local down = flash:CreateAnimation("Alpha")
+  down:SetFromAlpha(0.9)
+  down:SetToAlpha(0)
+  down:SetDuration(0.35)
+  down:SetSmoothing("IN")
+  down:SetOrder(2)
   button:SetScript("OnClick", function(_, mouse)
     if mouse == "RightButton" then ns.OpenSettings() else ns.Toggle() end
   end)
@@ -76,7 +97,19 @@ function ns.UpdateMinimapButton()
   badge:SetText(n > 0 and tostring(n) or "")
   button:Show()
 end
-ns.OnSuggestionsUpdated(function() ns.UpdateMinimapButton() end)
+
+-- Counts come from evaluations (and hidden tips), not from login, when nothing is evaluated yet.
+-- Only more tips flash; not in combat, not while the window already shows them.
+ns.OnSuggestionsUpdated(function()
+  ns.UpdateMinimapButton()
+  local n = #ns.Visible()
+  if flash and button:IsShown() and lastCount and n > lastCount and not ns.inCombat()
+      and not (ns.IsShown and ns.IsShown()) then
+    flash:Stop()
+    flash:Play()
+  end
+  lastCount = n
+end)
 
 local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_LOGIN")

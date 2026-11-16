@@ -48,6 +48,29 @@ describe("access and window layout", function()
       assert.truthy(shownText("^1$"))
     end)
 
+    it("flashes once when more tips arrive, never at login, in combat or with the window open", function()
+      local function plays()
+        for _, w in ipairs(mock.widgets) do
+          if rawget(w, "animGroup") then return rawget(w.animGroup, "plays") or 0 end
+        end
+      end
+      setTips({ TIPS[1] }) -- first count after login: no flash
+      assert.equal(0, plays())
+      setTips(TIPS)
+      assert.equal(1, plays())
+      setTips(TIPS) -- same count
+      setTips({ TIPS[1] }) -- fewer
+      assert.equal(1, plays())
+      mock.combat = true
+      setTips(TIPS)
+      assert.equal(1, plays())
+      mock.combat = false
+      setTips({ TIPS[1] })
+      SlashCmdList.WOWISH("") -- window open: the cards already show it
+      setTips(TIPS)
+      assert.equal(1, plays())
+    end)
+
     it("left-click toggles the window, right-click opens settings", function()
       local b = _G.WowishMinimapButton
       b.scripts.OnClick(b, "LeftButton")
