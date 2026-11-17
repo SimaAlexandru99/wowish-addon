@@ -3,6 +3,7 @@
 -- per frame (no stutter), pauses in combat, and keeps only NPCs friendly to the player with one known spawn.
 -- Copyright (C) 2026 Wowish authors. License: GPL-3.0-or-later (see LICENSE).
 local _, ns = ...
+local L = ns.L
 
 local BUDGET_MS = 2 -- per frame
 local KINDS = { trainer = "TRAINER", flight = "FLIGHT_MASTER", repair = "REPAIR" } -- LibQuestieDB.Enum.npcFlags keys
@@ -100,6 +101,17 @@ function ns.NearestService(kind, filter)
     end
   end
   return best, bestD and math.sqrt(bestD)
+end
+
+ns.NEAR_YARDS, ns.NEAR_BOOST = 200, 8
+
+-- A service tip moves up and says so when its NPC is close. Distance, not IsResting(): a village inn rests too.
+function ns.NearBoost(tip, yards)
+  if type(yards) == "number" and yards <= ns.NEAR_YARDS then
+    tip.priority = math.min(100, tip.priority + ns.NEAR_BOOST)
+    tip.why = tip.why .. " " .. string.format(L["It is right here: %d yards away."], math.floor(yards + 0.5))
+  end
+  return tip
 end
 
 local merchant = CreateFrame("Frame")

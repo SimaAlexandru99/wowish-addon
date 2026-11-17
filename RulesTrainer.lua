@@ -62,22 +62,25 @@ local function myClassTrainer(entry)
 end
 
 ns.RegisterRule({
-  id = "trainer", events = { "PLAYER_LEVEL_UP", "SPELLS_CHANGED" },
+  id = "trainer", events = { "PLAYER_LEVEL_UP", "SPELLS_CHANGED",
+    "ZONE_CHANGED", "PLAYER_UPDATE_RESTING" }, -- re-rank when the player walks into a town
   evaluate = function()
     local due = ns.TrainerSpellsDue()
     if #due == 0 then return {} end
     local names, all = {}, {}
     for i, s in ipairs(due) do all[i] = spellName(s) end
     for i = 1, math.min(#due, 4) do names[i] = all[i] end
-    local trainer = ns.NearestService and ns.NearestService("trainer", myClassTrainer)
+    local trainer, yards
+    if ns.NearestService then trainer, yards = ns.NearestService("trainer", myClassTrainer) end
     local waypoint = trainer and { map = trainer.place.map, x = trainer.place.x, y = trainer.place.y,
       title = string.format("Wowish: %s (%s)", trainer.place.name or L["a trainer you visited"],
         trainer.subName or UnitClass("player") or "?") } -- a visited place has no subname
-    return { {
+    local tip = {
       id = "trainer", kind = "trainer", priority = 80, details = all, hint = "spellbook", waypoint = waypoint,
       what = string.format(L["Visit your class trainer: %s (%s)."], ns.Count(#due, "new spell"),
         table.concat(names, ", ") .. (#due > 4 and ", ..." or "")),
       why = L["New ranks are stronger versions of spells you already use, and trainers teach them for a small fee."],
-    } }
+    }
+    return { ns.NearBoost and trainer and ns.NearBoost(tip, yards) or tip }
   end,
 })

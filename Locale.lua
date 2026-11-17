@@ -96,6 +96,7 @@ local RO = {
   ["Class trainer"] = "Trainer de clasa",
   ["Repairs"] = "Reparatii",
   ["repairs"] = "reparatii",
+  ["It is right here: %d yards away."] = "E chiar aici: la %d yarzi distanta.",
   ["a vendor you visited"] = "un negustor vizitat de tine",
   ["a trainer you visited"] = "un antrenor vizitat de tine",
   ["Repair your gear: one item is at %d%% durability."] = "Repara echipamentul: un item are %d%% durabilitate.",

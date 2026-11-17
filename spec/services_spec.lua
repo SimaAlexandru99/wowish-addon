@@ -138,6 +138,33 @@ describe("services", function()
       assert.equal(1413, s.waypoint.map)
     end)
 
+    it("moves the trainer tip up and says so when the trainer is within 200 yards", function()
+      mock.level = 4
+      local s = ns.ruleById.trainer.evaluate()[1] -- Near Hunter is 80 yards away
+      assert.equal(88, s.priority)
+      assert.matches("It is right here: 80 yards away", s.why)
+      mock.playerX, mock.playerY = 0.6, 0.6
+      s = ns.ruleById.trainer.evaluate()[1]
+      assert.equal(80, s.priority)
+      assert.is_nil(s.why:find("right here", 1, true))
+    end)
+
+    it("does the same for the repair tip", function()
+      mock.durability = { [7] = { 15, 100 } }
+      local s = ns.ruleById.repair.evaluate()[1] -- Smith is 283 yards away
+      assert.equal(75, s.priority)
+      assert.is_nil(s.why:find("right here", 1, true))
+      mock.playerX, mock.playerY = 0.54, 0.54
+      s = ns.ruleById.repair.evaluate()[1]
+      assert.equal(83, s.priority)
+      assert.matches("It is right here: 57 yards away", s.why)
+    end)
+
+    it("never lifts a tip above 100", function()
+      assert.equal(100, ns.NearBoost({ priority = 97, why = "x" }, 10).priority)
+      assert.equal(97, ns.NearBoost({ priority = 97, why = "x" }, nil).priority)
+    end)
+
     it("warns about gear before it breaks, louder when almost broken", function()
       mock.durability = { [5] = { 50, 100 }, [7] = { 30, 100 } }
       assert.same({}, ns.ruleById.repair.evaluate())
