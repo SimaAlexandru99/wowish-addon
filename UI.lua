@@ -16,6 +16,7 @@ local ICONS = {
   trainer = "Interface\\Icons\\INV_Misc_Book_09",
   repair = "Interface\\Icons\\Trade_BlackSmithing",
   fund = "Interface\\Icons\\INV_Misc_Coin_02",
+  commissions = "Interface\\Icons\\INV_Crate_01",
 }
 
 ns.dismissed = {} -- [suggestion id] = text when hidden; the tip returns once its text changes
@@ -50,8 +51,15 @@ local PANELS = {
   map = function(mapID)
     if OpenWorldMap then OpenWorldMap(mapID) return true end
   end,
+  commissions = function() -- CommissionsForever routes to every hand-in through ShortestPathForever
+    local a = ns.CommissionsAPI and ns.CommissionsAPI()
+    if not (a and a.NavigateActiveAssignments and a.NavigateActiveAssignments()) then
+      ns.Say(L["Commissions Forever could not start a route (it needs Shortest Path Forever)."])
+    end
+    return true
+  end,
 }
-local ACTION_LABEL = { map = "Map" }
+local ACTION_LABEL = { map = "Map", commissions = "Take me there" }
 
 -- "Press N to open your talents." from the player's own key binding (only reads settings).
 local HINTS = {
@@ -266,9 +274,13 @@ function ns.Go(n)
   if not s then return ns.Say(string.format(L["there is no tip %s."], tostring(n))) end
   local w = s.waypoint
   if not w then return ns.Say(string.format(L["tip %d has no known place."], n)) end
-  local how = ns.TakeMeThere(w, w.title)
+  local how, replaced = ns.TakeMeThere(w, w.title)
   if how == "combat" then return ns.Say(L["in combat: waypoints are paused."]) end
-  if how == "route" then return ns.Say(string.format(L["route started with ShortestPathForever: %s."], w.title)) end
+  if how == "route" then
+    ns.Say(string.format(L["route started with ShortestPathForever: %s."], w.title))
+    if replaced then ns.Say(L["It replaced the route that was already running."]) end
+    return
+  end
   if how == "chat" then
     ns.Say(string.format(L["no waypoint addon or map pin available. Go to %s."], ns.FormatPlace(w)))
   else

@@ -32,6 +32,22 @@ describe("navigation", function()
       assert.is_false(ns.GuideActive())
     end)
 
+    it("says when it replaced a journey that was not ours", function()
+      spf(true)
+      local api = _G.ShortestPathForever.API
+      api.Active = function() return true end
+      api.CurrentStop = function() return nil, "none" end
+      assert.same({ "route", true }, { ns.TakeMeThere(PLACE, PLACE.title) })
+      ns.suggestions = { { id = "t", priority = 90, what = "Turn in.", waypoint = PLACE } }
+      ns.Go(1)
+      assert.matches("replaced the route", mock.chat[#mock.chat])
+      api.CurrentStop = function(owner) return owner == "Wowish" and 1 or nil end
+      assert.same({ "route", false }, { ns.TakeMeThere(PLACE, PLACE.title) })
+      api.Active = function() return false end
+      api.CurrentStop = function() return nil, "none" end
+      assert.same({ "route", false }, { ns.TakeMeThere(PLACE, PLACE.title) })
+    end)
+
     it("cancels only our own journey on /wowish clear", function()
       spf(true)
       ns.TakeMeThere(PLACE, PLACE.title)

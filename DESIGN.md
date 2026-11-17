@@ -35,6 +35,7 @@ and the game blocks action-bar and item buttons in combat.
 | trainer | 80 | own class spells due by level/race (`TrainerData.lua`, from OneForAll), known via `C_SpellBook.IsSpellKnown` |
 | repair | 90 below 5% durability, 75 below 20% | `GetInventoryItemDurability`, nearest REPAIR NPC |
 | fund | saving 30 (60 two levels before), short 70, ready 85 with the race riding trainer; Apprentice 30-41, Journeyman 50-60 | `GetMoney`, home-faction `C_Reputation` (Honored: -10%), `IsPlayerSpell` or riding skill line 762; trainers from Polestar |
+| commissions | 65 when every material of a commission in the log is in the bags; button asks CommissionsForever to route to the hand-ins | `CommissionsForever.API.Materials`, `Subscribe`, `NavigateActiveAssignments` (optional addon) |
 | ammo (Hunter) | 88 none of the right type, 85 outdated | weapon subclass, own ammo table, QuestieDB vendors |
 | bags | 86 at 0 free regular slots (loot lost now), 65 at 1-4 | `C_Container`, bag family 0 only |
 | zone | 50 | quest log headers within ±3 levels, skips dungeon/raid/PvP/profession tags |

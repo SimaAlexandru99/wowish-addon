@@ -21,6 +21,7 @@ TrainerData.lua
 RulesTrainer.lua
 RulesRepair.lua
 RulesFund.lua
+RulesCommissions.lua
 Services.lua
 UI.lua
 MinimapButton.lua

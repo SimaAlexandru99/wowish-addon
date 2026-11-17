@@ -203,6 +203,7 @@ function mapAPI()
   _G.C_SuperTrack = { SetSuperTrackedUserWaypoint = function(on) mock.superTracked = on end }
   _G.TomTom = nil
   _G.ShortestPathForever = nil
+  _G.CommissionsForever = nil
   _G.CreateVector2D = mock.vec
   mock.indoors, mock.rotate, mock.facing = false, false, 0
   _G.IsIndoors = function() return mock.indoors end
