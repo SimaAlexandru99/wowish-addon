@@ -43,7 +43,8 @@ function mock.reset()
   _G.time = function() return mock.now end
   _G.strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
   _G.UnitName = function() return "Tester" end
-  _G.C_AddOns = { GetAddOnMetadata = function(_, key) return key == "Version" and "v0.3.0-test" or nil end }
+  _G.C_AddOns = { GetAddOnMetadata = function(_, key) return key == "Version" and "v0.3.0-test" or nil end,
+    IsAddOnLoaded = function(name) return mock.loaded and mock.loaded[name] == true end }
   _G.GetBuildInfo = function() return "1.60.1", "70938" end
   _G.GetLocale = function() return "enUS" end
   mock.clock = 0 -- ms; tests advance it to exhaust the scan's per-frame budget
@@ -109,9 +110,33 @@ function mock.reset()
     end,
     GetContainerItemInfo = function(bag, slot)
       local id = ((mock.bags[bag] or {}).items or {})[slot]
+      if type(id) == "table" then return id end -- full info: { itemID, quality, stackCount, ... }
       return id and { itemID = id, stackCount = 200 } or nil
     end,
+    UseContainerItem = function(bag, slot)
+      table.insert(mock.used, { bag, slot })
+      mock.bags[bag].items[slot] = nil -- sold
+    end,
   }
+  mock.used, mock.bought, mock.loaded, mock.shift = {}, {}, {}, false
+  -- Merchant: mock.merchant = { items = { { id, price, perStack, maxStack } }, repairCost = copper } or nil (closed).
+  mock.merchant, mock.repaired = nil, false
+  _G.MerchantFrame = { IsShown = function() return mock.merchant ~= nil end }
+  _G.IsShiftKeyDown = function() return mock.shift end
+  _G.CanMerchantRepair = function() return mock.merchant ~= nil and mock.merchant.repairCost ~= nil end
+  _G.GetRepairAllCost = function()
+    local c = mock.merchant and mock.merchant.repairCost or 0
+    return c, c > 0
+  end
+  _G.RepairAllItems = function() mock.repaired = true end
+  _G.GetMerchantNumItems = function() return mock.merchant and #mock.merchant.items or 0 end
+  _G.GetMerchantItemID = function(i) return mock.merchant.items[i][1] end
+  _G.GetMerchantItemMaxStack = function(i) return mock.merchant.items[i][4] end
+  _G.BuyMerchantItem = function(i, n) table.insert(mock.bought, { mock.merchant.items[i][1], n }) end
+  _G.C_MerchantFrame = { GetItemInfo = function(i)
+    local it = mock.merchant.items[i]
+    return { name = "Item " .. it[1], price = it[2], stackCount = it[3], hasExtendedCost = false }
+  end }
   -- Character: class, faction, equipped ranged weapon. mock.items[id] = { classID, subClassID }.
   mock.class, mock.faction, mock.ranged = "HUNTER", "Horde", nil
   mock.items = { [3036] = { 2, 2 }, [2511] = { 2, 3 }, [5000] = { 2, 18 }, [2947] = { 2, 16 },
@@ -126,6 +151,12 @@ function mock.reset()
     if id == 762 and mock.ridingMax then return { skillID = 762, rank = 1, maxRank = mock.ridingMax } end
   end }
   _G.GetMoney = function() return mock.money end
+  _G.GetRealmName = function() return "Realm" end
+  mock.trainer = {} -- { name, rank, category, cost }
+  _G.GetNumTrainerServices = function() return #mock.trainer end
+  _G.GetTrainerServiceInfo = function(i) local t = mock.trainer[i] return t[1], t[2], t[3] end
+  _G.GetTrainerServiceCost = function(i) return mock.trainer[i][4] end
+  _G.IsTradeskillTrainer = function() return false end
   _G.C_Reputation = { GetFactionDataByID = function(id)
     local r = mock.reputation[id]
     return r and { factionID = id, reaction = r } or nil
@@ -141,7 +172,36 @@ function mock.reset()
       if it then return id, nil, nil, nil, nil, it[1], it[2] end
     end,
     GetItemNameByID = function() return nil end, -- not cached yet: addon falls back to its own name
+    -- mock.itemInfo[id] = { sell = copper, stack = n }: GetItemInfo's 11th and 8th returns
+    GetItemInfo = function(id)
+      local it = mock.itemInfo[id]
+      if it then return "Item " .. id, nil, nil, nil, nil, nil, nil, it.stack, nil, nil, it.sell end
+    end,
+    GetItemCount = function(id) return mock.counts[id] or 0 end,
   }
+  mock.itemInfo, mock.counts = {}, {}
+  -- Items by link: mock.links[link] = { ilvl, equipLoc, classID, subClassID, sell }. mock.worn[slot] = link.
+  -- mock.choices = { { link, count } }: the quest reward window's choices.
+  mock.links, mock.worn, mock.choices = {}, {}, {}
+  local itemByID = _G.C_Item.GetItemInfo
+  local instantByID = _G.C_Item.GetItemInfoInstant
+  _G.C_Item.GetItemInfo = function(x)
+    local l = mock.links[x]
+    if l then return x, x, nil, nil, l[6], nil, nil, 1, nil, nil, l[5] end -- l[6]: required level
+    return itemByID(x)
+  end
+  _G.C_Item.GetItemInfoInstant = function(x)
+    local l = mock.links[x]
+    if l then return 1, nil, nil, l[2], nil, l[3], l[4] end
+    return instantByID(x)
+  end
+  _G.C_Item.GetDetailedItemLevelInfo = function(link) local l = mock.links[link] return l and l[1] end
+  _G.GetInventoryItemLink = function(_, slot) return mock.worn[slot] end
+  _G.GetNumQuestChoices = function() return #mock.choices end
+  _G.GetQuestItemLink = function(_, i) return (mock.choices[i] or {})[1] end
+  _G.GetQuestItemInfo = function(_, i) local c = mock.choices[i] return c[1], nil, c[2] end
+  _G.QuestInfoFrame = nil
+  _G.QuestInfoRewardsFrame = nil
   _G.LibQuestieDB = nil
   mapAPI()
 end
@@ -286,6 +346,7 @@ local WIDGET = {
   SetChecked = function(self, on) self.checked = on end,
   SetTitle = function(self, t) self.title = t end,
   GetChecked = function(self) return self.checked end,
+  GetID = function(self) return self.id end,
   CreateAnimationGroup = function(self) self.animGroup = mock.widget() return self.animGroup end,
   CreateAnimation = function() return mock.widget() end,
   Play = function(self) self.plays = (rawget(self, "plays") or 0) + 1 end,

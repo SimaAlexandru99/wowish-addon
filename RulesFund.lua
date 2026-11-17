@@ -1,4 +1,5 @@
--- Wowish rule: save gold for riding (Apprentice at 40, Journeyman at 60), then train it at your race's trainer.
+-- Wowish rule, the gold plan: save for riding (Apprentice at 40, Journeyman at 60), then train it at your race's
+-- trainer; the next class training cost; the riding reserve the vendor helpers (Vendor.lua) must not spend.
 -- Copyright (C) 2026 Wowish authors. License: GPL-3.0-or-later (see LICENSE).
 -- Forever facts (Icy Veins 2026-11-08, games.gg 2026-11-16): Apprentice Riding is 100g at level 40 and includes the
 -- first racial mount, Journeyman Riding 1000g at 60; Honored with your home faction takes 10% off. Paladins and
@@ -55,25 +56,83 @@ local function known(tier)
   return info ~= nil and (tonumber(info.maxRank) or 0) >= tier.maxRank
 end
 
+-- The riding tier this character saves for now, and its price; nil outside the saving windows, when it is
+-- learned already, or when a class quest gives it.
+local function goal()
+  local level = UnitLevel("player") or 1
+  local tier
+  for _, t in ipairs(TIERS) do
+    if level >= t.from and level <= t.upto then tier = t end
+  end
+  if not tier then return nil end
+  local price, honored = ns.RidingPrice(tier)
+  if price == 0 or known(tier) then return nil end
+  return tier, price, honored, level
+end
+
+-- Copper kept back for riding: what the vendor automations must not spend.
+function ns.RidingReserve()
+  local _, price = goal()
+  return price or 0
+end
+
+-- Class training: what the trainer asked last time at this level (recorded while its window was open), else
+-- our own rough estimate (about 206g in all from 1 to 60, growing with the level squared).
+local function charKey()
+  return (UnitName("player") or "?") .. "-" .. (GetRealmName and GetRealmName() or "?")
+end
+function ns.TrainerCost()
+  local level = UnitLevel("player") or 1
+  local seen = ns.db and ns.db.trainerCost[charKey()]
+  if type(seen) == "table" and seen.level == level and type(seen.cost) == "number" then return seen.cost, false end
+  return math.floor(54 * level * level / 100 + 0.5) * 100, true -- shortcut: own curve, not trainer data
+end
+
+local recorder = CreateFrame("Frame")
+recorder:RegisterEvent("TRAINER_SHOW")
+recorder:RegisterEvent("TRAINER_UPDATE")
+recorder:SetScript("OnEvent", function()
+  if not (ns.db and GetNumTrainerServices and GetTrainerServiceInfo and GetTrainerServiceCost) then return end
+  if IsTradeskillTrainer and IsTradeskillTrainer() then return end -- professions are not class training
+  -- Weapon masters, riding and pet trainers open the same window: only one that lists our class's spells counts.
+  -- shortcut: matched by English spell name, so other client languages keep the estimate; match by spell ID later.
+  local mine = {}
+  for _, row in ipairs((ns.TRAINER_SPELLS or {})[select(3, UnitClass("player"))] or {}) do mine[row[3]] = true end
+  local cost, classTrainer = 0, false
+  for i = 1, GetNumTrainerServices() or 0 do
+    local name, _, category = GetTrainerServiceInfo(i)
+    if mine[name] then classTrainer = true end
+    if category == "available" then cost = cost + (tonumber((GetTrainerServiceCost(i))) or 0) end
+  end
+  if not classTrainer then return end
+  ns.db.trainerCost[charKey()] = { level = UnitLevel("player") or 1, cost = cost }
+  ns.RequestUpdate()
+end)
+
+local function trainerLine()
+  local cost, estimate = ns.TrainerCost()
+  if cost <= 0 then return "" end
+  return " " .. string.format(estimate and L["Next class training: about %s (estimate)."]
+    or L["Next class training: %s."], gold(cost, true))
+end
+
 ns.RegisterRule({
   id = "fund",
   events = { "PLAYER_MONEY", "PLAYER_LEVEL_UP", "UPDATE_FACTION", "PLAYER_ENTERING_WORLD", "SKILL_LINES_CHANGED" },
   evaluate = function()
-    local level = UnitLevel("player") or 1
-    local tier
-    for _, t in ipairs(TIERS) do
-      if level >= t.from and level <= t.upto then tier = t end
-    end
+    local tier, price, honored, level = goal()
     if not tier then return {} end
-    local price, honored = ns.RidingPrice(tier)
-    if price == 0 or known(tier) then return {} end
     local money = GetMoney() or 0
     local why = (tier.level == 40 and L["Your first mount comes with it."] or L["Mounted speed goes to 100%."])
       .. " " .. (honored and L["You get the Honored price."] or L["Honored with your home faction takes 10% off."])
     if level < tier.level then
-      if money >= price then return {} end -- saved already: nothing to do until the level
-      return { { id = "fund", kind = "fund", priority = level >= tier.level - 2 and 60 or 30,
-        why = tier.level == 40 and (why .. " " .. L["Dual spec (50g at level 40) can wait."]) or why,
+      why = (tier.level == 40 and (why .. " " .. L["Dual spec (50g at level 40) can wait."]) or why) .. trainerLine()
+      if money >= price then -- saved already: say what is free to spend, low in the list
+        return { { id = "fund", kind = "fund", priority = 20, why = why,
+          what = string.format(L["Riding gold is ready: keep %s for %s at level %d, %s is free to spend."],
+            gold(price, true), tier.name, tier.level, gold(money - price)) } }
+      end
+      return { { id = "fund", kind = "fund", priority = level >= tier.level - 2 and 60 or 30, why = why,
         what = string.format(L["Save for %s at level %d: %s of %s."], tier.name, tier.level, gold(money),
           gold(price)) } }
     end

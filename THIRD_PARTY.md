@@ -14,6 +14,12 @@
 - Modified 2026-11-16 for Wowish: coordinates converted from percent to 0..1 and keyed by race ID; Skyborne keep the
   trainer but get no home faction, since Wowhead (2026-11-13) reports no reputation discount for them.
 
+## Polestar: vendor helper approach
+- File: `Vendor.lua`. Selling grey items slot by slot in ticks of 6 every 0.2 s with a re-check of each slot, and
+  buying in whole merchant stacks, follow Polestar `addon/Polestar/QoL/Vendor.lua` and `Buy.lua`
+  (https://github.com/fitzforge/polestar), Copyright (C) 2026 fitzforge, GPL-3.0. Written anew for Wowish; no code
+  copied.
+
 ## Runtime only (not copied)
 - QuestieDB: quest finishers, vendors and zone maps are read at run time through `LibQuestieDB` when installed.
 - CommissionsForever (cjber, GPL-3.0): `CommissionsForever.API` is read at run time when installed; nothing is copied.
