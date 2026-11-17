@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.6.0
+- Places you visited: Wowish remembers where you opened a repairing vendor or your class trainer, so the repair and
+  trainer tips have Take me there without QuestieDB too.
+- Right here: a repair or trainer tip moves up the list and says the distance when its NPC is within 200 yards.
+- Level-up line: after a level-up, one chat line with the new spells at your trainer, about what they cost and your
+  unspent talent points. Nothing when there is nothing to do. Can be turned off in the settings.
+
 ## v0.5.0
 - Quest rewards: when a quest lets you choose, Wowish marks the reward worth taking and says why in chat: a higher
   item level of your armor type, else the one that sells for the most (weapons are not compared). You still pick
