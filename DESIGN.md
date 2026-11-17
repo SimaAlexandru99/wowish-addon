@@ -1,7 +1,8 @@
 # Wowish — design
 
-**Goal:** a passive WoW Forever addon (1.60.1, Interface 16001) that, out of combat, tells the player the few
-things worth doing next for their character, and sets a waypoint only when asked.
+**Goal:** a WoW Forever addon (1.60.1, Interface 16001) that, out of combat, tells the player the few
+things worth doing next for their character, and sets a waypoint only when asked. Its only actions are opt-in
+vendor helpers (`Vendor.lua`), off by default, inside a merchant window the player opened, never in combat.
 
 ## Architecture (all in game, no external tools)
 ```
@@ -34,7 +35,7 @@ and the game blocks action-bar and item buttons in combat.
 | turnin | 90 on your map, 70 place unknown, 68 on the way, 60 elsewhere; max 2 | `C_QuestLog` + QuestieDB finisher |
 | trainer | 80 | own class spells due by level/race (`TrainerData.lua`, from OneForAll), known via `C_SpellBook.IsSpellKnown` |
 | repair | 90 below 5% durability, 75 below 20% | `GetInventoryItemDurability`, nearest REPAIR NPC |
-| fund | saving 30 (60 two levels before), short 70, ready 85 with the race riding trainer; Apprentice 30-41, Journeyman 50-60 | `GetMoney`, home-faction `C_Reputation` (Honored: -10%), `IsPlayerSpell` or riding skill line 762; trainers from Polestar |
+| fund (gold plan) | saving 30 (60 two levels before), saved 20 (free to spend), short 70, ready 85 with the race riding trainer; Apprentice 30-41, Journeyman 50-60; next class training cost (recorded at `TRAINER_SHOW` per character and level, else 54c x level^2) | `GetMoney`, home-faction `C_Reputation` (Honored: -10%), `IsPlayerSpell` or riding skill line 762; trainers from Polestar |
 | commissions | 65 when every material of a commission in the log is in the bags; button asks CommissionsForever to route to the hand-ins | `CommissionsForever.API.Materials`, `Subscribe`, `NavigateActiveAssignments` (optional addon) |
 | ammo (Hunter) | 88 none of the right type, 85 outdated | weapon subclass, own ammo table, QuestieDB vendors |
 | bags | 86 at 0 free regular slots (loot lost now), 65 at 1-4 | `C_Container`, bag family 0 only |

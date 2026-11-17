@@ -1,6 +1,6 @@
 # Wowish - notes for coding agents
 - WoW Forever addon (client 1.60.1, Interface 16001). Forever is Mainline-family (game type "camelot", modern `C_*` API, secret values), NOT Classic Era: check APIs with the `wow-api` MCP (`.mcp.json`, channel `forever`) or by grepping installed Forever addons.
-- Passive advisor: never act in combat, no input automation, no network, waypoints only on an explicit click/command. GPL-3.0-or-later.
+- Advisor first: never act in combat, no input automation or movement, no network, waypoints only on an explicit click/command, never takes or hands in quests. The only actions are opt-in vendor helpers (`Vendor.lua`: sell greys, repair, Hunter ammo), off by default, only while a merchant window the player opened is shown (owner decision 2026-11-17). GPL-3.0-or-later.
 - Layout: addon files at the repo root, load order = `Wowish.toc`; `spec/` busted tests with `spec/wow_mock.lua` (extend the mock for every new client call); `docs/mockups/` approved UI.
 - Run: `PATH=~/.local/share/lua51-dev/bin:$PATH; luacheck *.lua spec && busted` (Lua 5.1 + LuaRocks via hererocks, no sudo). CI runs the same (`.github/workflows/test.yml`). In-game behaviour is UNTESTED until the player confirms it.
 - QuestieDB is an optional runtime dependency read through `LibQuestieDB` (contract 4). Never copy its data into the repo or the package; its maintainers ask for a dependency, not embedding. Do not copy text from Icy Veins/Wowhead/Maxroll/Guidelime.

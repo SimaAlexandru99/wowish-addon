@@ -10,7 +10,7 @@ local category
 local RULE_LABELS = {
   { "turnin", "Quests to hand in" }, { "talents", "Unspent talent points" }, { "bags", "Bag space" },
   { "zone", "Where to quest next" }, { "ammo", "Hunter: ammo" }, { "trainer", "Class trainer" },
-  { "repair", "Repairs" }, { "fund", "Gold for riding" },
+  { "repair", "Repairs" }, { "fund", "Gold plan (riding, training)" },
   { "commissions", "Commissions ready" },
 }
 
@@ -57,6 +57,24 @@ function ns.RegisterSettings()
     end)
   end
   Settings.RegisterInitializer(category, Settings.CreateSliderInitializer(scale, options))
+
+  local vendorTip = L["Off by default. Only while a vendor window you opened is shown, never in combat; "
+    .. "hold Shift when it opens to skip."]
+  local owner = ns.VendorOwner and ns.VendorOwner()
+  local ownerTip = owner and (vendorTip .. " "
+    .. string.format(L["%s is loaded and does this already, so Wowish leaves it to %s."], owner, owner))
+  checkbox("autoSell", L["Sell grey items at vendors"], function() return ns.db.auto.sell end,
+    function(on) ns.db.auto.sell = on end, ownerTip or vendorTip)
+  checkbox("autoRepair", L["Repair at vendors"], function() return ns.db.auto.repair end,
+    function(on) ns.db.auto.repair = on end, ownerTip or vendorTip)
+  checkbox("autoAmmo", L["Hunter: restock ammo at vendors"], function() return ns.db.auto.ammo end,
+    function(on) ns.db.auto.ammo = on end,
+    vendorTip .. " " .. L["Never spends the gold kept for riding."])
+  local stacks = Settings.RegisterProxySetting(category, "Wowish_ammoStacks", Settings.VarType.Number or "number",
+    L["Ammo stacks to keep"], 3, function() return ns.db.auto.ammoStacks end,
+    function(v) ns.db.auto.ammoStacks = math.floor(v + 0.5) end)
+  Settings.RegisterInitializer(category,
+    Settings.CreateSliderInitializer(stacks, Settings.CreateSliderOptions(1, 10, 1)))
 
   for _, r in ipairs(RULE_LABELS) do
     local id = r[1]

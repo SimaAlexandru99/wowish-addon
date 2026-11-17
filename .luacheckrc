@@ -17,7 +17,10 @@ read_globals = {
   "debugprofilestop", "GetInventoryItemDurability", "GetMoney", "C_Reputation", "C_SkillInfo",
   "ButtonFrameTemplate_HidePortrait", "ButtonFrameTemplate_HideButtonBar",
   "Settings", "CreateSettingsButtonInitializer", "MinimalSliderWithSteppersMixin", "C_SettingsUtil",
-  "securecallfunction",
+  "securecallfunction", "GetRealmName", "GetNumTrainerServices", "GetTrainerServiceInfo", "GetTrainerServiceCost",
+  "IsTradeskillTrainer", "MerchantFrame", "CanMerchantRepair", "GetRepairAllCost", "RepairAllItems",
+  "GetMerchantNumItems", "GetMerchantItemID", "GetMerchantItemMaxStack", "BuyMerchantItem", "C_MerchantFrame",
+  "IsShiftKeyDown",
 }
 
 files["Locale.lua"] = { max_line_length = false } -- long translated sentences

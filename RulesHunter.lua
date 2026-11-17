@@ -60,23 +60,30 @@ local function nearestVendor(itemID)
   return best
 end
 
+-- The ammo a Hunter's ranged weapon takes: kind ("arrow" | "bullet"), our vendor tiers of it, and the highest
+-- tier usable at this level (0 = none). nil for other classes, thrown weapons and wands.
+function ns.HunterAmmo()
+  local _, class = UnitClass("player")
+  if class ~= "HUNTER" then return nil end
+  local weapon = GetInventoryItemID("player", INVSLOT_RANGED or 18)
+  if not weapon then return nil end
+  local weaponClass, ammoFor = weaponAmmo()
+  local _, _, _, _, _, classID, subClassID = C_Item.GetItemInfoInstant(weapon)
+  local kind = classID == weaponClass and ammoFor[subClassID]
+  if not kind then return nil end
+  local tiers, lvl, want = AMMO[kind], UnitLevel("player"), 0
+  for i, t in ipairs(tiers) do
+    if t.level <= lvl then want = i end
+  end
+  return kind, tiers, want
+end
+
 ns.RegisterRule({
   id = "ammo", events = { "PLAYER_LEVEL_UP", "BAG_UPDATE_DELAYED", "PLAYER_EQUIPMENT_CHANGED",
     "ZONE_CHANGED_NEW_AREA", "PLAYER_ENTERING_WORLD" }, -- the vendor waypoint is on the current map
   evaluate = function()
-    local _, class = UnitClass("player")
-    if class ~= "HUNTER" then return {} end
-    local weapon = GetInventoryItemID("player", INVSLOT_RANGED or 18)
-    if not weapon then return {} end
-    local weaponClass, ammoFor = weaponAmmo()
-    local _, _, _, _, _, classID, subClassID = C_Item.GetItemInfoInstant(weapon)
-    local kind = classID == weaponClass and ammoFor[subClassID]
-    if not kind then return {} end -- thrown, wand or not a ranged weapon: no ammo
-
-    local tiers, lvl, want = AMMO[kind], UnitLevel("player"), 0
-    for i, t in ipairs(tiers) do
-      if t.level <= lvl then want = i end
-    end
+    local kind, tiers, want = ns.HunterAmmo()
+    if not kind then return {} end -- not a Hunter, or thrown, wand or no ranged weapon: no ammo
     local have, other = ownedTier(tiers, kind)
     -- shortcut: ammo outside our vendor table counts as good enough (its level is not checked); fine for a hint
     if want == 0 or have >= want or other then return {} end

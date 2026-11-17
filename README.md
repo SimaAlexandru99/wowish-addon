@@ -6,15 +6,21 @@ arrow to follow, no quests taken for you. Out of combat it shows the few things 
 - quests ready to hand in, grouped by where you hand them in;
 - new spells or ranks waiting at your class trainer (and where the nearest one is);
 - gear about to break, and the nearest repair NPC;
-- gold for riding: saving from level 30 for Apprentice Riding at 40 (100g, 90g at Honored; paladins and warlocks
+- a gold plan: saving from level 30 for Apprentice Riding at 40 (100g, 90g at Honored; paladins and warlocks
   get it from a class quest) and from 50 for Journeyman Riding at 60 (1000g), then the way to your riding trainer;
+  what the next class training costs (as asked at your trainer, else an estimate) and what is free to spend;
 - unspent talent points;
 - bags almost full;
 - where to keep questing (never a dungeon or battleground);
 - Hunters: vendor ammo that matches your weapon and level.
 
-It never acts in combat, never presses a button or casts anything for you, and sets a waypoint only when you
-click one. English and Romanian.
+It never acts in combat, never moves your character or casts anything for you, never takes or hands in quests,
+and sets a waypoint only when you click one. English and Romanian.
+
+Optional vendor helpers, all off until you turn them on (Options > AddOns > Wowish): sell grey items, repair, and
+for Hunters top up ammo (never with the gold kept for riding). They run only while a vendor window you opened is
+shown; hold Shift as it opens to skip them. With OneForAll or Polestar loaded, Wowish leaves selling and repairs to
+them.
 
 ## Use
 - The **minimap button** (left-click: window, right-click: settings, drag: move; the number is how many tips are

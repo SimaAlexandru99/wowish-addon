@@ -1,6 +1,7 @@
 -- Wowish core: saved settings, rule registry, throttled out-of-combat evaluation.
 -- Copyright (C) 2026 Wowish authors. License: GPL-3.0-or-later (see LICENSE).
--- Passive by design: rules only read client state; nothing here runs in combat.
+-- Rules only read client state and nothing runs in combat. The one exception that acts is Vendor.lua: opt-in
+-- helpers that run only inside a merchant window the player opened.
 
 local addonName, ns = ...
 
@@ -20,6 +21,8 @@ local DEFAULTS = {
   minimapAngle = 200, -- degrees around the minimap
   nextBar = false,   -- one-line "next tip" bar under the minimap
   rules = {},        -- [ruleId] = false disables a rule
+  auto = { sell = false, repair = false, ammo = false, ammoStacks = 3 }, -- vendor helpers, opt-in
+  trainerCost = {},  -- ["Name-Realm"] = { level, cost }: class training seen at the trainer
 }
 
 -- Fill missing keys from defaults; keep the player's values; recurse into tables.
@@ -41,6 +44,8 @@ ns.applyDefaults = applyDefaults
 local function sanitize(db)
   if type(db.scale) ~= "number" or db.scale < 0.7 or db.scale > 1.5 then db.scale = 1 end
   if type(db.minimapAngle) ~= "number" then db.minimapAngle = 200 end
+  local stacks = db.auto.ammoStacks
+  if type(stacks) ~= "number" or stacks < 1 or stacks > 10 then db.auto.ammoStacks = 3 end
   local p = db.pos
   if p ~= nil and not (type(p) == "table" and type(p[1]) == "string" and type(p[2]) == "string"
       and type(p[3]) == "number" and type(p[4]) == "number") then
