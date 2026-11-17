@@ -38,7 +38,7 @@ them.
 ## Optional helpers
 - **QuestieDB**: adds where to go (turn-in NPCs, ammo vendors, class trainers, repair NPCs, flight masters). Read at run time; nothing is copied.
   Without it, Wowish still remembers the repair vendors and class trainers you have visited and sends you back to
-  the nearest one (trainers only on an English client for now). A repair or trainer tip moves up the list when its NPC is within 200 yards.
+  the nearest one. A repair or trainer tip moves up the list when its NPC is within 200 yards.
 - **TomTom**: waypoints use its arrow; without it, the game's own map pin.
 - **ShortestPathForever**: "Take me there" asks it for the real route (walking, flights, boats, portals), drawn on
   the map and minimap, and cards show the travel time. Without it, Wowish draws a straight-line guide on the
