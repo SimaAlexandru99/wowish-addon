@@ -55,6 +55,15 @@ local function sanitize(db)
 end
 ns.sanitize = sanitize
 
+-- "1g 5s", "40s", "7c": copper as the player reads it.
+function ns.Money(copper)
+  copper = math.floor(copper or 0)
+  local g, s, c = math.floor(copper / 10000), math.floor(copper / 100) % 100, copper % 100
+  if g > 0 then return s > 0 and string.format("%dg %ds", g, s) or (g .. "g") end
+  if s > 0 then return c > 0 and string.format("%ds %dc", s, c) or (s .. "s") end
+  return c .. "c"
+end
+
 local frame = CreateFrame("Frame")
 ns.frame = frame
 

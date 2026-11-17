@@ -108,7 +108,7 @@ describe("vendor helpers", function()
       mock.counts[SHARP] = 150
       visit(ARROWS)
       assert.same({ { SHARP, 200 }, { SHARP, 200 }, { SHARP, 200 } }, mock.bought) -- 3 stacks - 150 = 450, rounded up
-      assert.matches("bought 600 Item 2515 %(1s 50c%)", mock.chat[1])
+      assert.matches("buying 600 Item 2515 %(1s 50c%)", mock.chat[1])
     end)
 
     it("never spends the gold kept for riding, and says so", function()
@@ -119,6 +119,14 @@ describe("vendor helpers", function()
       visit(ARROWS)
       assert.same({}, mock.bought)
       assert.matches("ammo skipped: it would cut into your riding savings %(100g%)", mock.chat[1])
+    end)
+
+    it("counts the repair just paid before buying ammo", function()
+      ns.db.auto.repair = true
+      mock.level, mock.money = 34, 100 * G + 120 -- 1s 20c above the riding reserve
+      visit({ items = ARROWS.items, repairCost = 100 })
+      assert.is_true(mock.repaired)
+      assert.same({}, mock.bought) -- 20c left after the repair: not one 50c purchase
     end)
 
     it("buys nothing above the level, nothing when off, for other classes or when stocked", function()

@@ -1,5 +1,5 @@
 local mock = require("spec.wow_mock")
-local FILES = { "Core.lua", "Locale.lua", "RulesFund.lua" }
+local FILES = { "Core.lua", "Locale.lua", "TrainerData.lua", "RulesFund.lua" }
 
 local G = 10000 -- copper per gold
 local ORGRIMMAR, APPRENTICE = 76, 33388
@@ -102,6 +102,9 @@ describe("gold for riding", function()
 
   it("names the next class training: estimate until the trainer was seen at this level", function()
     assert.matches("Next class training: about 7g %(estimate%)%.$", fund()[1].why) -- 54c x 34^2 = 6g 24s
+    mock.trainer = { { "Two-Handed Axes", "", "available", 1000 } } -- a weapon master: not class training
+    mock.fire("TRAINER_SHOW")
+    assert.matches("%(estimate%)", fund()[1].why)
     mock.trainer = { { "Arcane Shot", "Rank 3", "available", 1800 }, { "Track", "", "used", 900 },
       { "Volley", "", "unavailable", 9000 } }
     mock.fire("TRAINER_SHOW")

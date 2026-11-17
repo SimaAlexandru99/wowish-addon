@@ -94,11 +94,17 @@ recorder:RegisterEvent("TRAINER_UPDATE")
 recorder:SetScript("OnEvent", function()
   if not (ns.db and GetNumTrainerServices and GetTrainerServiceInfo and GetTrainerServiceCost) then return end
   if IsTradeskillTrainer and IsTradeskillTrainer() then return end -- professions are not class training
-  local cost = 0
+  -- Weapon masters, riding and pet trainers open the same window: only one that lists our class's spells counts.
+  -- shortcut: matched by English spell name, so other client languages keep the estimate; match by spell ID later.
+  local mine = {}
+  for _, row in ipairs((ns.TRAINER_SPELLS or {})[select(3, UnitClass("player"))] or {}) do mine[row[3]] = true end
+  local cost, classTrainer = 0, false
   for i = 1, GetNumTrainerServices() or 0 do
-    local _, _, category = GetTrainerServiceInfo(i)
+    local name, _, category = GetTrainerServiceInfo(i)
+    if mine[name] then classTrainer = true end
     if category == "available" then cost = cost + (tonumber((GetTrainerServiceCost(i))) or 0) end
   end
+  if not classTrainer then return end
   ns.db.trainerCost[charKey()] = { level = UnitLevel("player") or 1, cost = cost }
   ns.RequestUpdate()
 end)

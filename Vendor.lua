@@ -22,14 +22,6 @@ function ns.VendorOwner()
   return nil
 end
 
-function ns.Money(copper)
-  copper = math.floor(copper or 0)
-  local g, s, c = math.floor(copper / 10000), math.floor(copper / 100) % 100, copper % 100
-  if g > 0 then return s > 0 and string.format("%dg %ds", g, s) or (g .. "g") end
-  if s > 0 then return c > 0 and string.format("%ds %dc", s, c) or (s .. "s") end
-  return c .. "c"
-end
-
 local open, queue, done, owner = false, {}, nil, nil
 
 -- Still at the merchant: a sale through UseContainerItem anywhere else would use or equip the item.
@@ -50,11 +42,12 @@ local function repair()
   if owner or not (ns.db.auto.repair and CanMerchantRepair and CanMerchantRepair()) then return end
   local cost, can = GetRepairAllCost()
   if not can or not cost or cost <= 0 then return end
-  if (GetMoney() or 0) < cost then
+  if (GetMoney() or 0) + done.earned < cost then -- the sales just made may not have landed yet
     done[#done + 1] = string.format(L["not enough gold to repair (%s)"], ns.Money(cost))
     return
   end
   RepairAllItems()
+  done.spent = done.spent + cost -- GetMoney() still shows the gold before the repair this frame
   done[#done + 1] = string.format(L["repaired (%s)"], ns.Money(cost))
 end
 
@@ -82,7 +75,7 @@ local function restock()
   if need <= 0 then return end
   local purchases = math.ceil(need / per)
   local reserve = ns.RidingReserve and ns.RidingReserve() or 0
-  local affordable = math.floor(math.max(0, (GetMoney() or 0) - reserve) / price)
+  local affordable = math.floor(math.max(0, (GetMoney() or 0) - done.spent - reserve) / price)
   if affordable < purchases then
     purchases = affordable
     if purchases == 0 then
@@ -102,7 +95,8 @@ local function restock()
     left = left - n
   end
   local name = info and info.name or item.name
-  done[#done + 1] = string.format(L["bought %d %s (%s)"], items, name, ns.Money(purchases * price))
+  -- shortcut: bag room is not checked, so this says what was asked for; the server refuses what does not fit
+  done[#done + 1] = string.format(L["buying %d %s (%s)"], items, name, ns.Money(purchases * price))
 end
 
 local function finish()
@@ -132,7 +126,7 @@ local function step()
 end
 
 local function onShow()
-  open, queue, done, owner = true, {}, { sold = 0, earned = 0 }, ns.VendorOwner()
+  open, queue, done, owner = true, {}, { sold = 0, earned = 0, spent = 0 }, ns.VendorOwner()
   if ns.inCombat() or (IsShiftKeyDown and IsShiftKeyDown()) then return end
   if ns.db.auto.sell and not owner then
     for bag = 0, 4 do
