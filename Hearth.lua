@@ -10,21 +10,17 @@ local INN_YARDS = 300 -- the inn must be this close to the place
 local FAR_YARDS = 1000 -- the player must be at least this far already
 local SOON = 300 -- seconds of cooldown still worth mentioning
 
-local LANDING = 60 -- seconds after a Hearthstone cast in which the arrival is taken as the inn
-
-local cast -- GetTime() of the last Hearthstone cast still waiting for its arrival
-
 -- Stores where the player stands as the inn; true when it did.
 local function remember()
   local map, x, y = ns.PlayerPosition()
   if x == nil or ns.db == nil then return false end
   local name = GetBindLocation and GetBindLocation()
   ns.db.hearth[ns.CharKey()] = { map = map, x = x, y = y, name = name }
+  ns.RequestUpdate()
   return true
 end
 
--- The bind location is named after the inn's subzone, or the zone in a city: only there is the arrival the inn
--- (a zone event can fire before the teleport, and a late one would record wherever the player walked in).
+-- The bind location is named after the inn's subzone, or the zone in a city.
 local function atBind()
   local bind = GetBindLocation and GetBindLocation()
   if type(bind) ~= "string" or bind == "" then return false end
@@ -32,10 +28,45 @@ local function atBind()
     or bind == (GetRealZoneText and GetRealZoneText())
 end
 
-local frame = CreateFrame("Frame")
-for _, ev in ipairs({ "HEARTHSTONE_BOUND", "PLAYER_ENTERING_WORLD", "ZONE_CHANGED_NEW_AREA", "ZONE_CHANGED" }) do
-  frame:RegisterEvent(ev)
+-- After a Hearthstone cast the player stands at the inn. A short timer, not zone events: an event can fire
+-- before the teleport, and none fires when the cast started in the inn's own subzone. Timers wait out a loading
+-- screen; the position can still be unknown on the first frame after it, hence the retries.
+local function landed(tries)
+  if not atBind() then return end
+  if not remember() and tries > 0 then
+    C_Timer.After(3, function() xpcall(function() landed(tries - 1) end, ns.report) end)
+  end
 end
+
+-- Cooldown seconds left on the stone; the global cooldown (a second or two after any cast) counts as ready.
+local function cooldownLeft()
+  local start, duration = C_Container.GetItemCooldown(STONE)
+  if type(start) ~= "number" or type(duration) ~= "number" or start <= 0 or duration <= 2 then return 0 end
+  return math.max(0, start + duration - GetTime())
+end
+
+-- BAG_UPDATE_COOLDOWN fires for every cooldown, so the tips are refreshed only when the stone moves between
+-- silent, "soon" and "ready"; one timer wakes us at the next boundary, where no event fires.
+local lastState, timer
+local function watch()
+  local left = cooldownLeft()
+  local state = left <= 0 and "ready" or left <= SOON and "soon" or "silent"
+  if state ~= lastState then
+    lastState = state
+    ns.RequestUpdate()
+  end
+  if left > 0 and not timer then
+    timer = true
+    C_Timer.After((left > SOON and left - SOON or left) + 1, function()
+      timer = nil
+      xpcall(watch, ns.report)
+    end)
+  end
+end
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("HEARTHSTONE_BOUND")
+frame:RegisterEvent("BAG_UPDATE_COOLDOWN")
 if frame.RegisterUnitEvent then
   frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 else
@@ -44,23 +75,15 @@ end
 frame:SetScript("OnEvent", function(_, event, unit, _, spellID)
   xpcall(function()
     if event == "HEARTHSTONE_BOUND" then
-      remember()
-    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-      -- only a flag: this fires in combat
-      if unit == "player" and not (issecretvalue and issecretvalue(spellID)) and spellID == 8690 then
-        cast = GetTime()
-      end
-    elseif cast then
-      if GetTime() - cast > LANDING then
-        cast = nil
-      elseif atBind() and remember() then -- position unknown during the loading screen: the next event retries
-        cast = nil
-      end
+      C_Timer.After(1, function() xpcall(remember, ns.report) end) -- the new bind name may not be readable yet
+    elseif event == "BAG_UPDATE_COOLDOWN" then
+      watch()
+    elseif unit == "player" and not (issecretvalue and issecretvalue(spellID)) and spellID == 8690 then
+      -- only a timer: this fires in combat
+      C_Timer.After(2, function() xpcall(function() landed(2) end, ns.report) end)
     end
   end, ns.report)
 end)
-ns.frame:RegisterEvent("BAG_UPDATE_COOLDOWN")
-ns.frame:RegisterEvent("HEARTHSTONE_BOUND")
 
 local function length(e, n) return math.sqrt(e * e + n * n) end
 
@@ -73,9 +96,7 @@ function ns.HearthHint(place)
   end
   if type(inn.name) == "string" and inn.name ~= GetBindLocation() then return nil end -- re-bound unseen
   if C_Item.GetItemCount(STONE) <= 0 then return nil end
-  local start, duration = C_Container.GetItemCooldown(STONE)
-  local left = (type(start) == "number" and type(duration) == "number" and start > 0 and duration > 0)
-    and (start + duration - GetTime()) or 0
+  local left = cooldownLeft()
   if left > SOON then return nil end
   local e, n = ns.GuideOffset(place, inn)
   if not e then return nil end

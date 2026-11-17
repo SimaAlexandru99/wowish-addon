@@ -64,8 +64,9 @@ License: GPL-3.0-or-later.
   value. Weapons are not compared. Never calls `GetQuestReward`. Setting `rewardHint`.
 - Hearthstone hint (`Hearth.lua`): text appended to the `why` of every tip with a waypoint (in `Core.Evaluate`) and
   printed by `ns.Go`; never a priority change, never a button. Only without ShortestPathForever. The inn is
-  learned per character at `HEARTHSTONE_BOUND` and on arrival within 60 s of a Hearthstone cast while the zone or
-  subzone text equals `GetBindLocation()`. Shown when the inn is within 300 yards of the place, the player is over
+  learned per character a second after `HEARTHSTONE_BOUND` and two seconds after a Hearthstone cast (spell 8690)
+  while the zone or subzone text equals `GetBindLocation()`. Tips refresh when the stone's cooldown moves between
+  silent, "soon" and "ready" (`BAG_UPDATE_COOLDOWN` plus one timer), not on every cooldown event. Shown when the inn is within 300 yards of the place, the player is over
   1000 yards away (or on another continent), item 6948 is in the bags and its cooldown is 5 minutes or less.
   Setting `hearthHint`.
 - Level-up line (`UI.lua`): after `PLAYER_LEVEL_UP`, one chat line from the trainer and talents tips of the next
