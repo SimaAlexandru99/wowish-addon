@@ -16,6 +16,7 @@ local DEFAULTS = {
   welcomeSeen = false,
   locale = false,    -- false: follow the client locale
   loginLine = true,
+  levelLine = true,
   scale = 1,
   minimapButton = true,
   minimapAngle = 200, -- degrees around the minimap

@@ -347,10 +347,25 @@ BINDING_HEADER_WOWISH = "Wowish"
 BINDING_NAME_WOWISH_TOGGLE = L["Open or close Wowish"]
 
 -- Login line: once, after the first evaluation that follows login.
-local loginPending = false
+local loginPending, levelPending = false, nil
 ns.OnSuggestionsUpdated(function(top)
+  if levelPending and not loginPending then
+    local level, parts, trainer = levelPending, {}, false
+    levelPending = nil
+    if not ns.db.levelLine then return end
+    for _, tip in ipairs(top) do
+      if tip.rule == "trainer" or tip.rule == "talents" then
+        parts[#parts + 1] = tip.what
+        trainer = trainer or tip.rule == "trainer"
+      end
+    end
+    if #parts == 0 then return end
+    ns.Say(string.format(L["Level %d: %s"], level, table.concat(parts, " ")) .. (trainer and ns.TrainerLine() or ""))
+    return
+  end
   if not loginPending then return end
   loginPending = false
+  levelPending = nil -- the login line wins
   if not ns.db.loginLine then return end
   if #top == 0 then
     ns.Say(L["nothing urgent right now. (/wowish)"])
@@ -362,9 +377,12 @@ end)
 local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_LOGIN")
 events:RegisterEvent("PLAYER_REGEN_DISABLED")
-events:SetScript("OnEvent", function(_, event)
+events:RegisterEvent("PLAYER_LEVEL_UP")
+events:SetScript("OnEvent", function(_, event, level)
   if event == "PLAYER_LOGIN" then
     loginPending = true
+  elseif event == "PLAYER_LEVEL_UP" then
+    levelPending = level or UnitLevel("player")
   elseif frame and frame:IsShown() then -- combat started: get out of the way
     frame:Hide()
   end

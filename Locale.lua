@@ -86,6 +86,8 @@ local RO = {
   ["Show my advice"] = "Arata sfaturile",
   -- settings
   ["One-line summary in chat at login"] = "Rezumat de o linie in chat la login",
+  ["One-line summary in chat at level-up"] = "Rezumat de o linie in chat la level-up",
+  ["Level %d: %s"] = "Nivel %d: %s",
   ["Window scale"] = "Marimea ferestrei",
   ["Tips"] = "Sfaturi",
   ["Quests to hand in"] = "Questuri de predat",

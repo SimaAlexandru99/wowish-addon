@@ -1,6 +1,6 @@
 local mock = require("spec.wow_mock")
 local FILES = { "Core.lua", "Locale.lua", "Questie.lua",
-  "Waypoint.lua", "MinimapGuide.lua", "Navigation.lua", "RulesCommon.lua", "RulesHunter.lua",
+  "Waypoint.lua", "MinimapGuide.lua", "Navigation.lua", "RulesCommon.lua", "RulesHunter.lua", "RulesFund.lua",
   "UI.lua", "Welcome.lua",
   "SettingsPanel.lua" }
 
@@ -163,6 +163,46 @@ describe("UI", function()
       mock.fire("PLAYER_LOGIN")
       mock.flush()
       assert.equal(0, #mock.chat)
+    end)
+  end)
+
+  describe("level-up line", function()
+    before_each(function() ns.rules, ns.ruleById = {}, {} end) -- only the tips each test registers
+    local function rule(id, what)
+      ns.RegisterRule({ id = id, evaluate = function() return { { id = id, priority = 50, what = what } } end })
+    end
+    local function levelUp() mock.fire("PLAYER_LEVEL_UP", 24); mock.flush() end
+
+    it("sums up the trainer and talent tips with the cost", function()
+      rule("trainer", "Visit your class trainer: 2 new spells.")
+      rule("talents", "You have 1 unspent talent point.")
+      levelUp()
+      local line = mock.lastChat()
+      assert.matches("Level 24: ", line)
+      assert.matches("Visit your class trainer: 2 new spells%.", line)
+      assert.matches("You have 1 unspent talent point%.", line)
+      assert.matches("Next class training: about %d+g", line)
+    end)
+
+    it("says nothing when nothing is due, or when turned off", function()
+      rule("bags", "Bags almost full.")
+      levelUp()
+      assert.equal(0, #mock.chat)
+      rule("talents", "You have 1 unspent talent point.")
+      ns.db.levelLine = false
+      levelUp()
+      assert.equal(0, #mock.chat)
+    end)
+
+    it("waits for the end of combat", function()
+      rule("talents", "You have 1 unspent talent point.")
+      mock.combat = true
+      levelUp()
+      assert.equal(0, #mock.chat)
+      mock.combat = false
+      mock.fire("PLAYER_REGEN_ENABLED")
+      mock.flush()
+      assert.matches("Level 24: You have 1 unspent", mock.lastChat())
     end)
   end)
 
