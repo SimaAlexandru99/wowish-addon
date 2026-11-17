@@ -51,3 +51,10 @@ Nothing in combat (window hides on `PLAYER_REGEN_DISABLED`, commands refuse), no
 welcome. Own wording only; no text from guides.
 
 License: GPL-3.0-or-later.
+
+## Outside the tip list
+- `QuestReward.lua`: on `QUEST_COMPLETE` with 2+ choices, marks one reward (own texture on the reward button) and
+  says why in chat: the biggest item-level gain of an armor piece of the class's armor type (mail/plate from 40;
+  cloaks, rings, necks, trinkets for all; rings and trinkets against the lower worn one), else the highest sell
+  value. Weapons are not compared. Never calls `GetQuestReward`. Setting `rewardHint`.
+- `Vendor.lua`: opt-in helpers at an open merchant (sell greys, repair, Hunter ammo within the riding reserve).

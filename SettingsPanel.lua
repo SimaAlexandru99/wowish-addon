@@ -58,6 +58,9 @@ function ns.RegisterSettings()
   end
   Settings.RegisterInitializer(category, Settings.CreateSliderInitializer(scale, options))
 
+  checkbox("rewardHint", L["Mark the recommended quest reward"], function() return ns.db.rewardHint end,
+    function(on) ns.db.rewardHint = on end, L["Never picks it for you."])
+
   local vendorTip = L["Off by default. Only while a vendor window you opened is shown, never in combat; "
     .. "hold Shift when it opens to skip."]
   local owner = ns.VendorOwner and ns.VendorOwner()

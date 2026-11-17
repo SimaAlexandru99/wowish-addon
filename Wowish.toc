@@ -23,6 +23,7 @@ RulesRepair.lua
 RulesFund.lua
 RulesCommissions.lua
 Vendor.lua
+QuestReward.lua
 Services.lua
 UI.lua
 MinimapButton.lua
