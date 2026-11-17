@@ -39,6 +39,8 @@ local function gain(link)
     local level = ilvl(GetInventoryItemLink("player", slot)) or 0 -- empty slot: anything is better
     if not worn or level < worn then worn = level end
   end
+  local minLevel = select(5, C_Item.GetItemInfo(link))
+  if minLevel and minLevel > (UnitLevel("player") or 1) then return nil end -- cannot wear it yet
   local level = ilvl(link)
   return level and level - worn, level, worn
 end

@@ -187,7 +187,7 @@ function mock.reset()
   local instantByID = _G.C_Item.GetItemInfoInstant
   _G.C_Item.GetItemInfo = function(x)
     local l = mock.links[x]
-    if l then return x, x, nil, nil, nil, nil, nil, 1, nil, nil, l[5] end
+    if l then return x, x, nil, nil, l[6], nil, nil, 1, nil, nil, l[5] end -- l[6]: required level
     return itemByID(x)
   end
   _G.C_Item.GetItemInfoInstant = function(x)

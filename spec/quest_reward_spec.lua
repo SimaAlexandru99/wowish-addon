@@ -60,6 +60,12 @@ describe("quest reward hint", function()
     assert.equal(1, (ns.RewardPick()))
   end)
 
+  it("never calls an item you cannot wear yet an upgrade", function()
+    mock.links.mailHands[6] = 35 -- requires level 35
+    mock.choices = { { "mailHands", 1 }, { "sword", 1 } }
+    assert.equal(2, (ns.RewardPick()))
+  end)
+
   it("waits for item data, needs two choices, and can be turned off", function()
     mock.choices = { { "unknown", 1 }, { "sword", 1 } }
     assert.is_nil(ns.RewardPick())
