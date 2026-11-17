@@ -123,6 +123,7 @@ function mock.reset()
       if type(id) == "table" then return id end -- full info: { itemID, quality, stackCount, ... }
       return id and { itemID = id, stackCount = 200 } or nil
     end,
+    GetItemCooldown = function(id) local c = mock.cooldowns[id] or {} return c[1], c[2] end,
     UseContainerItem = function(bag, slot)
       table.insert(mock.used, { bag, slot })
       mock.bags[bag].items[slot] = nil -- sold
@@ -161,6 +162,14 @@ function mock.reset()
     if id == 762 and mock.ridingMax then return { skillID = 762, rank = 1, maxRank = mock.ridingMax } end
   end }
   _G.GetMoney = function() return mock.money end
+  -- GetBindLocation, GetTime, GetItemCooldown ([itemID] = { start, duration })
+  mock.bind, mock.time, mock.cooldowns = "Orgrimmar", 5000, {}
+  _G.GetBindLocation = function() return mock.bind end
+  mock.subzone, mock.zone = "Valley of Strength", "Orgrimmar" -- GetSubZoneText, GetZoneText / GetRealZoneText
+  _G.GetSubZoneText = function() return mock.subzone end
+  _G.GetZoneText = function() return mock.zone end
+  _G.GetRealZoneText = function() return mock.zone end
+  _G.GetTime = function() return mock.time end
   _G.GetRealmName = function() return "Realm" end
   mock.trainer = {} -- { name, rank, category, cost }
   _G.GetNumTrainerServices = function() return #mock.trainer end
@@ -329,6 +338,7 @@ end
 -- Text height is 12 px per started 60 characters, enough to exercise card layout.
 local WIDGET = {
   RegisterEvent = function(self, ev) self.events[ev] = true end,
+  RegisterUnitEvent = function(self, ev) self.events[ev] = true end,
   UnregisterEvent = function(self, ev) self.events[ev] = nil end,
   SetScript = function(self, name, fn) self.scripts[name] = fn end,
   GetScript = function(self, name) return self.scripts[name] end,

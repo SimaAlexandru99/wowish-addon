@@ -11,6 +11,7 @@ arrow to follow, no quests taken for you. Out of combat it shows the few things 
   what the next class training costs (as asked at your trainer, else an estimate) and what is free to spend;
 - unspent talent points;
 - bags almost full;
+- a quest log almost full, and grey quests that give no XP any more;
 - where to keep questing (never a dungeon or battleground);
 - Hunters: vendor ammo that matches your weapon and level;
 - at a quest with rewards to choose from, the one worth taking (a higher item level of your armor type, else the
@@ -42,7 +43,8 @@ them.
 - **TomTom**: waypoints use its arrow; without it, the game's own map pin.
 - **ShortestPathForever**: "Take me there" asks it for the real route (walking, flights, boats, portals), drawn on
   the map and minimap, and cards show the travel time. Without it, Wowish draws a straight-line guide on the
-  minimap (dots and an edge arrow; it does not know roads or flights).
+  minimap (dots and an edge arrow; it does not know roads or flights) and, when your inn is next to the place and
+  you are far away, says that your Hearthstone is ready.
 - **Commissions Forever**: a card when a commission in your log has all its materials in your bags; its button asks
   Commissions Forever for the route to the hand-ins.
 

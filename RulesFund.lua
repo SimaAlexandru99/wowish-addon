@@ -81,6 +81,7 @@ end
 local function charKey()
   return (UnitName("player") or "?") .. "-" .. (GetRealmName and GetRealmName() or "?")
 end
+ns.CharKey = charKey
 function ns.TrainerCost()
   local level = UnitLevel("player") or 1
   local seen = ns.db and ns.db.trainerCost[charKey()]

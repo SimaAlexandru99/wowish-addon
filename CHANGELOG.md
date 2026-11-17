@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.6.1
+- Hearthstone hint: when your inn is within 300 yards of a tip's place and you are far from it, the card and the
+  "Take me there" chat line say your Hearthstone is ready (or ready in under 5 minutes). Wowish learns where your
+  inn is when you set it or land there, and never uses the stone for you. Left to ShortestPathForever when it is
+  installed. Can be turned off in the settings.
+- Quests that give no XP: with three or more unfinished grey quests in your log, a low tip names them.
+- Quest log space: a tip when two or fewer slots are left, higher when the log is full; it names the grey quests
+  to drop first. Wowish never abandons a quest.
+- The class trainer is recognised on clients in any language, so training costs and the visited trainer are
+  recorded there too.
+
 ## v0.6.0
 - Places you visited: Wowish remembers where you opened a repairing vendor or your class trainer, so the repair and
   trainer tips have Take me there without QuestieDB too.

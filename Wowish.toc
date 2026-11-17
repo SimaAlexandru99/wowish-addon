@@ -25,6 +25,7 @@ RulesCommissions.lua
 Vendor.lua
 QuestReward.lua
 Services.lua
+Hearth.lua
 UI.lua
 MinimapButton.lua
 NextBar.lua

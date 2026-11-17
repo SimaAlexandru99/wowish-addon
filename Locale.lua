@@ -86,6 +86,14 @@ local RO = {
   ["Show my advice"] = "Arata sfaturile",
   -- settings
   ["One-line summary in chat at login"] = "Rezumat de o linie in chat la login",
+  ["Hearthstone hints"] = "Sugestii cu Hearthstone",
+  ["Says when your Hearthstone gets you close to a tip's place. Wowish never uses it for you."] =
+    "Spune cand Hearthstone te aduce aproape de locul unui sfat. Wowish nu il foloseste niciodata in locul tau.",
+  ["your inn"] = "hanul tau",
+  ["Your Hearthstone is ready: %s is %d yards from there."] =
+    "Hearthstone este gata: %s este la %d yarzi de acolo.",
+  ["Your Hearthstone is ready in under 5 min: %s is %d yards from there."] =
+    "Hearthstone este gata in mai putin de 5 min: %s este la %d yarzi de acolo.",
   ["One-line summary in chat at level-up"] = "Rezumat de o linie in chat la level-up",
   ["Level %d: %s"] = "Nivel %d: %s",
   ["Window scale"] = "Marimea ferestrei",

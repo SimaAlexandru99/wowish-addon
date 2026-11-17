@@ -41,6 +41,8 @@ and the game blocks action-bar and item buttons in combat.
 | ammo (Hunter) | 88 none of the right type, 85 outdated | weapon subclass, own ammo table, QuestieDB vendors |
 | bags | 86 at 0 free regular slots (loot lost now), 65 at 1-4 | `C_Container`, bag family 0 only |
 | zone | 50 | quest log headers within ±3 levels, skips dungeon/raid/PvP/profession tags |
+| questlog | 60 at 2 or fewer free quest log slots, 80 when full; names the grey quests | `C_QuestLog.GetNumQuestLogEntries`, `GetMaxNumQuestsCanAccept` |
+| greyquests | 35 from 3 unfinished trivial quests | `C_QuestLog.IsQuestTrivial` |
 
 ## Locations
 Only from QuestieDB at run time, only for an NPC/object with exactly one spawn outside instances; otherwise the
@@ -60,6 +62,12 @@ License: GPL-3.0-or-later.
   says why in chat: the biggest item-level gain of an armor piece of the class's armor type (mail/plate from 40;
   cloaks, rings, necks, trinkets for all; rings and trinkets against the lower worn one), else the highest sell
   value. Weapons are not compared. Never calls `GetQuestReward`. Setting `rewardHint`.
+- Hearthstone hint (`Hearth.lua`): text appended to the `why` of every tip with a waypoint (in `Core.Evaluate`) and
+  printed by `ns.Go`; never a priority change, never a button. Only without ShortestPathForever. The inn is
+  learned per character at `HEARTHSTONE_BOUND` and on arrival within 60 s of a Hearthstone cast while the zone or
+  subzone text equals `GetBindLocation()`. Shown when the inn is within 300 yards of the place, the player is over
+  1000 yards away (or on another continent), item 6948 is in the bags and its cooldown is 5 minutes or less.
+  Setting `hearthHint`.
 - Level-up line (`UI.lua`): after `PLAYER_LEVEL_UP`, one chat line from the trainer and talents tips of the next
   evaluation (so never in combat) plus the training cost. Setting `levelLine`.
 - `Vendor.lua`: opt-in helpers at an open merchant (sell greys, repair, Hunter ammo within the riding reserve).
