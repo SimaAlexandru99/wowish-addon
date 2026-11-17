@@ -81,6 +81,7 @@ end
 local function charKey()
   return (UnitName("player") or "?") .. "-" .. (GetRealmName and GetRealmName() or "?")
 end
+ns.CharKey = charKey
 function ns.TrainerCost()
   local level = UnitLevel("player") or 1
   local seen = ns.db and ns.db.trainerCost[charKey()]
@@ -95,9 +96,13 @@ recorder:SetScript("OnEvent", function()
   if not (ns.db and GetNumTrainerServices and GetTrainerServiceInfo and GetTrainerServiceCost) then return end
   if IsTradeskillTrainer and IsTradeskillTrainer() then return end -- professions are not class training
   -- Weapon masters, riding and pet trainers open the same window: only one that lists our class's spells counts.
-  -- shortcut: matched by English spell name, so other client languages keep the estimate; match by spell ID later.
+  -- Matched by name: the English one from our data and the client's own, so every client language works.
   local mine = {}
-  for _, row in ipairs((ns.TRAINER_SPELLS or {})[select(3, UnitClass("player"))] or {}) do mine[row[3]] = true end
+  for _, row in ipairs((ns.TRAINER_SPELLS or {})[select(3, UnitClass("player"))] or {}) do
+    mine[row[3]] = true
+    local own = C_Spell and C_Spell.GetSpellName and C_Spell.GetSpellName(row[2])
+    if own then mine[own] = true end
+  end
   local cost, classTrainer = 0, false
   for i = 1, GetNumTrainerServices() or 0 do
     local name, _, category = GetTrainerServiceInfo(i)

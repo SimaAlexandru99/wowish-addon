@@ -38,6 +38,7 @@ function ns.ReadQuestLog()
       out[#out + 1] = {
         id = info.questID, title = info.title or "?", level = info.level, header = header, -- title can be uncached
         complete = QL.IsComplete(info.questID),
+        trivial = type(QL.IsQuestTrivial) == "function" and QL.IsQuestTrivial(info.questID) == true,
       }
     end
   end
@@ -54,6 +55,14 @@ local function titles(quests, max)
   local names = {}
   for i = 1, math.min(#quests, max) do names[i] = quests[i].title end
   return table.concat(names, ", ") .. (#quests > max and ", ..." or "")
+end
+
+local function greyOpen()
+  local out = {}
+  for _, q in ipairs(ns.ReadQuestLog()) do
+    if q.trivial and not q.complete then out[#out + 1] = q end
+  end
+  return out
 end
 
 ns.RegisterRule({
@@ -179,5 +188,45 @@ ns.RegisterRule({
         best, ns.Count(#quests, "open quest"), titles(quests, 3)),
       why = L["Most of your active objectives near your level are there, so the least travel per XP."] .. xp,
     } }
+  end,
+})
+
+ns.RegisterRule({
+  id = "greyquests", events = QUEST_EVENTS,
+  evaluate = function()
+    if type(C_QuestLog.IsQuestTrivial) ~= "function" then return {} end
+    local list = greyOpen()
+    if #list < 3 then return {} end
+    return { {
+      id = "greyquests", kind = "quest", priority = 35, details = allTitles(list),
+      what = string.format(L["%s in your log give almost no XP now: %s."], ns.Count(#list, "quest"), titles(list, 3)),
+      -- luacheck: push ignore 631
+      why = L["Abandon them to free room, unless you want their rewards or the quests that follow them. Wowish never abandons a quest for you."],
+      -- luacheck: pop
+    } }
+  end,
+})
+
+ns.RegisterRule({
+  id = "questlog", events = QUEST_EVENTS,
+  evaluate = function()
+    local QL = C_QuestLog
+    if type(QL.GetNumQuestLogEntries) ~= "function" or type(QL.GetMaxNumQuestsCanAccept) ~= "function" then
+      return {}
+    end
+    local _, used = QL.GetNumQuestLogEntries()
+    local max = QL.GetMaxNumQuestsCanAccept()
+    if type(used) ~= "number" or type(max) ~= "number" or max <= 0 then return {} end
+    local free = max - used
+    if free > 2 then return {} end
+    local s = { id = "questlog", kind = "quest", priority = free <= 0 and 80 or 60,
+      what = string.format(L["Quest log almost full: %s of %d."], ns.Count(math.max(free, 0), "free slot"), max),
+      why = L["With a full log you cannot accept new quests."] }
+    local grey = greyOpen()
+    if #grey > 0 then
+      s.why = s.why .. " " .. string.format(L["Grey ones to drop first: %s."], titles(grey, 3))
+      s.details = allTitles(grey)
+    end
+    return { s }
   end,
 })

@@ -11,7 +11,8 @@ local RULE_LABELS = {
   { "turnin", "Quests to hand in" }, { "talents", "Unspent talent points" }, { "bags", "Bag space" },
   { "zone", "Where to quest next" }, { "ammo", "Hunter: ammo" }, { "trainer", "Class trainer" },
   { "repair", "Repairs" }, { "fund", "Gold plan (riding, training)" },
-  { "commissions", "Commissions ready" },
+  { "commissions", "Commissions ready" }, { "greyquests", "Quests that give no XP" },
+  { "questlog", "Quest log space" },
 }
 
 local function checkbox(key, name, get, set, tooltip)
@@ -38,6 +39,12 @@ function ns.RegisterSettings()
     function() return ns.db.loginLine end, function(on) ns.db.loginLine = on end)
   checkbox("levelLine", L["One-line summary in chat at level-up"],
     function() return ns.db.levelLine end, function(on) ns.db.levelLine = on end)
+  -- luacheck: push ignore 631
+  checkbox("hearthHint", L["Hearthstone hints"], function() return ns.db.hearthHint end, function(on)
+    ns.db.hearthHint = on
+    ns.RequestUpdate()
+  end, L["Says when your Hearthstone gets you close to a tip's place. Wowish never uses it for you."])
+  -- luacheck: pop
   checkbox("minimapButton", L["Show the minimap button"], function() return ns.db.minimapButton end, function(on)
     ns.db.minimapButton = on
     ns.UpdateMinimapButton()

@@ -21,7 +21,7 @@ read_globals = {
   "IsTradeskillTrainer", "MerchantFrame", "CanMerchantRepair", "issecretvalue", "GetRepairAllCost", "RepairAllItems",
   "GetMerchantNumItems", "GetMerchantItemID", "GetMerchantItemMaxStack", "BuyMerchantItem", "C_MerchantFrame",
   "IsShiftKeyDown", "GetNumQuestChoices", "GetQuestItemLink", "GetQuestItemInfo", "GetInventoryItemLink",
-  "QuestInfoFrame", "QuestInfoRewardsFrame",
+  "QuestInfoFrame", "QuestInfoRewardsFrame", "GetBindLocation", "GetTime", "GetSubZoneText", "GetZoneText", "GetRealZoneText",
 }
 
 files["Locale.lua"] = { max_line_length = false } -- long translated sentences
