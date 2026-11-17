@@ -12,7 +12,9 @@ arrow to follow, no quests taken for you. Out of combat it shows the few things 
 - unspent talent points;
 - bags almost full;
 - where to keep questing (never a dungeon or battleground);
-- Hunters: vendor ammo that matches your weapon and level.
+- Hunters: vendor ammo that matches your weapon and level;
+- at a quest with rewards to choose from, the one worth taking (a higher item level of your armor type, else the
+  one that sells for the most), marked and explained in chat; you still pick it.
 
 It never acts in combat, never moves your character or casts anything for you, never takes or hands in quests,
 and sets a waypoint only when you click one. English and Romanian.

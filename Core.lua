@@ -20,6 +20,7 @@ local DEFAULTS = {
   minimapButton = true,
   minimapAngle = 200, -- degrees around the minimap
   nextBar = false,   -- one-line "next tip" bar under the minimap
+  rewardHint = true, -- mark the recommended quest reward (QuestReward.lua)
   rules = {},        -- [ruleId] = false disables a rule
   auto = { sell = false, repair = false, ammo = false, ammoStacks = 3 }, -- vendor helpers, opt-in
   trainerCost = {},  -- ["Name-Realm"] = { level, cost }: class training seen at the trainer

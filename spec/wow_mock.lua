@@ -180,6 +180,28 @@ function mock.reset()
     GetItemCount = function(id) return mock.counts[id] or 0 end,
   }
   mock.itemInfo, mock.counts = {}, {}
+  -- Items by link: mock.links[link] = { ilvl, equipLoc, classID, subClassID, sell }. mock.worn[slot] = link.
+  -- mock.choices = { { link, count } }: the quest reward window's choices.
+  mock.links, mock.worn, mock.choices = {}, {}, {}
+  local itemByID = _G.C_Item.GetItemInfo
+  local instantByID = _G.C_Item.GetItemInfoInstant
+  _G.C_Item.GetItemInfo = function(x)
+    local l = mock.links[x]
+    if l then return x, x, nil, nil, nil, nil, nil, 1, nil, nil, l[5] end
+    return itemByID(x)
+  end
+  _G.C_Item.GetItemInfoInstant = function(x)
+    local l = mock.links[x]
+    if l then return 1, nil, nil, l[2], nil, l[3], l[4] end
+    return instantByID(x)
+  end
+  _G.C_Item.GetDetailedItemLevelInfo = function(link) local l = mock.links[link] return l and l[1] end
+  _G.GetInventoryItemLink = function(_, slot) return mock.worn[slot] end
+  _G.GetNumQuestChoices = function() return #mock.choices end
+  _G.GetQuestItemLink = function(_, i) return (mock.choices[i] or {})[1] end
+  _G.GetQuestItemInfo = function(_, i) local c = mock.choices[i] return c[1], nil, c[2] end
+  _G.QuestInfoFrame = nil
+  _G.QuestInfoRewardsFrame = nil
   _G.LibQuestieDB = nil
   mapAPI()
 end
@@ -324,6 +346,7 @@ local WIDGET = {
   SetChecked = function(self, on) self.checked = on end,
   SetTitle = function(self, t) self.title = t end,
   GetChecked = function(self) return self.checked end,
+  GetID = function(self) return self.id end,
   CreateAnimationGroup = function(self) self.animGroup = mock.widget() return self.animGroup end,
   CreateAnimation = function() return mock.widget() end,
   Play = function(self) self.plays = (rawget(self, "plays") or 0) + 1 end,
