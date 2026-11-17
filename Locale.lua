@@ -86,6 +86,8 @@ local RO = {
   ["Show my advice"] = "Arata sfaturile",
   -- settings
   ["One-line summary in chat at login"] = "Rezumat de o linie in chat la login",
+  ["One-line summary in chat at level-up"] = "Rezumat de o linie in chat la level-up",
+  ["Level %d: %s"] = "Nivel %d: %s",
   ["Window scale"] = "Marimea ferestrei",
   ["Tips"] = "Sfaturi",
   ["Quests to hand in"] = "Questuri de predat",
@@ -96,6 +98,9 @@ local RO = {
   ["Class trainer"] = "Trainer de clasa",
   ["Repairs"] = "Reparatii",
   ["repairs"] = "reparatii",
+  ["It is right here: %d yards away."] = "E chiar aici: la %d yarzi distanta.",
+  ["a vendor you visited"] = "un negustor vizitat de tine",
+  ["a trainer you visited"] = "un antrenor vizitat de tine",
   ["Repair your gear: one item is at %d%% durability."] = "Repara echipamentul: un item are %d%% durabilitate.",
   ["Broken items stop giving their stats. Any armor or weapon vendor can repair them."] =
     "Itemele stricate nu mai dau statistici. Orice vendor de armuri sau arme le repara.",

@@ -12,7 +12,8 @@ client events ──► Core.lua: throttled (1 s), never in combat ──► rul
                                                                   │
          Questie.lua ── optional ──► LibQuestieDB (QuestieDB addon, contract 4): turn-in NPC, ammo vendors
          Services.lua: one background scan per session (2 ms/frame, paused in combat) of QuestieDB NPC flags
-         (Enum.npcFlags TRAINER / FLIGHT_MASTER / REPAIR) -> nearest class trainer, repair NPC, flight master
+         (Enum.npcFlags TRAINER / FLIGHT_MASTER / REPAIR) -> nearest class trainer, repair NPC, flight master;
+         plus the places the player visited (WowishDB.places: repairing vendors, own class trainers)
          Navigation.lua "Take me there": ShortestPathForever.API route (owner "Wowish") ► else Waypoint.lua
          (TomTom ► native pin ► chat) + MinimapGuide.lua (straight-line dots + edge arrow, honours rotateMinimap)
          Welcome.lua (first login), SettingsPanel.lua (Options > AddOns > Wowish), Locale.lua (English / Romanian)
@@ -33,8 +34,8 @@ and the game blocks action-bar and item buttons in combat.
 |---|---|---|
 | talents | 95 | `C_ClassTalents.HasUnspentTalentPoints` |
 | turnin | 90 on your map, 70 place unknown, 68 on the way, 60 elsewhere; max 2 | `C_QuestLog` + QuestieDB finisher |
-| trainer | 80 | own class spells due by level/race (`TrainerData.lua`, from OneForAll), known via `C_SpellBook.IsSpellKnown` |
-| repair | 90 below 5% durability, 75 below 20% | `GetInventoryItemDurability`, nearest REPAIR NPC |
+| trainer | 80, +8 when the trainer is within 200 yards | own class spells due by level/race (`TrainerData.lua`, from OneForAll), known via `C_SpellBook.IsSpellKnown` |
+| repair | 90 below 5% durability, 75 below 20%, +8 when the NPC is within 200 yards | `GetInventoryItemDurability`, nearest REPAIR NPC |
 | fund (gold plan) | saving 30 (60 two levels before), saved 20 (free to spend), short 70, ready 85 with the race riding trainer; Apprentice 30-41, Journeyman 50-60; next class training cost (recorded at `TRAINER_SHOW` per character and level, else 54c x level^2) | `GetMoney`, home-faction `C_Reputation` (Honored: -10%), `IsPlayerSpell` or riding skill line 762; trainers from Polestar |
 | commissions | 65 when every material of a commission in the log is in the bags; button asks CommissionsForever to route to the hand-ins | `CommissionsForever.API.Materials`, `Subscribe`, `NavigateActiveAssignments` (optional addon) |
 | ammo (Hunter) | 88 none of the right type, 85 outdated | weapon subclass, own ammo table, QuestieDB vendors |
@@ -44,6 +45,9 @@ and the game blocks action-bar and item buttons in combat.
 ## Locations
 Only from QuestieDB at run time, only for an NPC/object with exactly one spawn outside instances; otherwise the
 tip has no waypoint. Nothing from QuestieDB is copied into the repo or the package.
+The one other source is the player: `ns.LearnPlace` records where a repairing vendor (`MERCHANT_SHOW`) or the
+player's class trainer (`TRAINER_SHOW`) was opened, per faction and class, and `ns.NearestService` uses those too. The class-trainer test matches English spell
+names, so other client languages learn no trainer place yet.
 
 ## Never
 Nothing in combat (window hides on `PLAYER_REGEN_DISABLED`, commands refuse), no input automation
@@ -57,4 +61,6 @@ License: GPL-3.0-or-later.
   says why in chat: the biggest item-level gain of an armor piece of the class's armor type (mail/plate from 40;
   cloaks, rings, necks, trinkets for all; rings and trinkets against the lower worn one), else the highest sell
   value. Weapons are not compared. Never calls `GetQuestReward`. Setting `rewardHint`.
+- Level-up line (`UI.lua`): after `PLAYER_LEVEL_UP`, one chat line from the trainer and talents tips of the next
+  evaluation (so never in combat) plus the training cost. Setting `levelLine`.
 - `Vendor.lua`: opt-in helpers at an open merchant (sell greys, repair, Hunter ammo within the riding reserve).

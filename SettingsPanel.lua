@@ -36,6 +36,8 @@ function ns.RegisterSettings()
   end, L["Labels in this settings page change after /reload."])
   checkbox("loginLine", L["One-line summary in chat at login"],
     function() return ns.db.loginLine end, function(on) ns.db.loginLine = on end)
+  checkbox("levelLine", L["One-line summary in chat at level-up"],
+    function() return ns.db.levelLine end, function(on) ns.db.levelLine = on end)
   checkbox("minimapButton", L["Show the minimap button"], function() return ns.db.minimapButton end, function(on)
     ns.db.minimapButton = on
     ns.UpdateMinimapButton()

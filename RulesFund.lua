@@ -105,11 +105,13 @@ recorder:SetScript("OnEvent", function()
     if category == "available" then cost = cost + (tonumber((GetTrainerServiceCost(i))) or 0) end
   end
   if not classTrainer then return end
+  -- must not stop the cost recording
+  if ns.LearnPlace then xpcall(function() ns.LearnPlace("trainer") end, ns.report) end
   ns.db.trainerCost[charKey()] = { level = UnitLevel("player") or 1, cost = cost }
   ns.RequestUpdate()
 end)
 
-local function trainerLine()
+function ns.TrainerLine()
   local cost, estimate = ns.TrainerCost()
   if cost <= 0 then return "" end
   return " " .. string.format(estimate and L["Next class training: about %s (estimate)."]
@@ -126,7 +128,7 @@ ns.RegisterRule({
     local why = (tier.level == 40 and L["Your first mount comes with it."] or L["Mounted speed goes to 100%."])
       .. " " .. (honored and L["You get the Honored price."] or L["Honored with your home faction takes 10% off."])
     if level < tier.level then
-      why = (tier.level == 40 and (why .. " " .. L["Dual spec (50g at level 40) can wait."]) or why) .. trainerLine()
+      why = (tier.level == 40 and (why .. " " .. L["Dual spec (50g at level 40) can wait."]) or why) .. ns.TrainerLine()
       if money >= price then -- saved already: say what is free to spend, low in the list
         return { { id = "fund", kind = "fund", priority = 20, why = why,
           what = string.format(L["Riding gold is ready: keep %s for %s at level %d, %s is free to spend."],

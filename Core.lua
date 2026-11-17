@@ -16,6 +16,7 @@ local DEFAULTS = {
   welcomeSeen = false,
   locale = false,    -- false: follow the client locale
   loginLine = true,
+  levelLine = true,
   scale = 1,
   minimapButton = true,
   minimapAngle = 200, -- degrees around the minimap
@@ -23,6 +24,7 @@ local DEFAULTS = {
   rewardHint = true, -- mark the recommended quest reward (QuestReward.lua)
   rules = {},        -- [ruleId] = false disables a rule
   auto = { sell = false, repair = false, ammo = false, ammoStacks = 3 }, -- vendor helpers, opt-in
+  places = { repair = {}, trainer = {} }, -- learned NPC places: key -> { map, x, y, name, faction, class }
   trainerCost = {},  -- ["Name-Realm"] = { level, cost }: class training seen at the trainer
 }
 
@@ -134,6 +136,7 @@ function ns.Evaluate()
   end
   ns.suggestions = top
   ns.updatedAt = time()
+  ns.evals = (ns.evals or 0) + 1 -- lets a listener tell a fresh evaluation from a hidden tip's notification
   ns.NotifyChanged()
   return top
 end

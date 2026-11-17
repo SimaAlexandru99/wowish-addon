@@ -42,7 +42,10 @@ function mock.reset()
   mock.now = 1000000
   _G.time = function() return mock.now end
   _G.strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
-  _G.UnitName = function() return "Tester" end
+  mock.npcName = "Vendor Joe" -- UnitName("npc"): the open merchant or trainer
+  mock.secretNames = {}       -- names issecretvalue reports as secret
+  _G.UnitName = function(unit) return unit == "npc" and mock.npcName or "Tester" end
+  _G.issecretvalue = function(v) return mock.secretNames[v] == true end
   _G.C_AddOns = { GetAddOnMetadata = function(_, key) return key == "Version" and "v0.3.0-test" or nil end,
     IsAddOnLoaded = function(name) return mock.loaded and mock.loaded[name] == true end }
   _G.GetBuildInfo = function() return "1.60.1", "70938" end

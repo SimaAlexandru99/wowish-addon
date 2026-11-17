@@ -81,6 +81,62 @@ describe("services", function()
     assert.is_nil(ns.NearestService("trainer"))
   end)
 
+  describe("places you visited", function()
+    local function visit(kind)
+      mock.merchant = { repairCost = 100 }
+      if kind == "repair" then mock.fire("MERCHANT_SHOW") else ns.LearnPlace("trainer") end
+    end
+
+    it("uses a learned repair place when QuestieDB is absent", function()
+      _G.LibQuestieDB = nil
+      visit("repair")
+      mock.playerX = 0.6
+      local e, yards = ns.NearestService("repair")
+      assert.equal("Vendor Joe", e.place.name)
+      assert.is_true(yards > 0)
+      mock.durability = { [7] = { 15, 100 } }
+      assert.equal("Wowish: Vendor Joe (repairs)", ns.ruleById.repair.evaluate()[1].waypoint.title)
+    end)
+
+    it("ignores a place learned by the other faction", function()
+      visit("repair")
+      mock.faction = "Alliance"
+      assert.is_nil(ns.NearestService("repair"))
+    end)
+
+    it("ignores a trainer place of another class in the trainer rule", function()
+      visit("trainer")
+      mock.class = "MAGE"
+      mock.level = 4
+      assert.is_nil(ns.NearestService("trainer", function(e) return e.class == "MAGE" end))
+      assert.same({}, { ns.ruleById.trainer.evaluate()[1].waypoint })
+    end)
+
+    it("sends the trainer tip to a visited trainer of the player's class", function()
+      mock.secretNames["Vendor Joe"] = true -- no name stored
+      visit("trainer")
+      mock.level = 4
+      local w = ns.ruleById.trainer.evaluate()[1].waypoint
+      assert.equal(1413, w.map)
+      assert.matches("a trainer you visited", w.title)
+    end)
+
+    it("skips a malformed entry without error", function()
+      ns.db.places.repair["bad"] = { map = 1413, y = 0.5, faction = "H" }
+      assert.is_nil(ns.NearestService("repair"))
+      ns.db.places.repair["odd"] = { map = 1413, x = 0.5, y = 0.5, faction = "H", name = {} }
+      mock.durability = { [7] = { 15, 100 } }
+      assert.matches("a vendor you visited", ns.ruleById.repair.evaluate()[1].waypoint.title)
+    end)
+
+    it("stores a secret NPC name as no name", function()
+      mock.secretNames["Vendor Joe"] = true
+      visit("repair")
+      local _, p = next(ns.db.places.repair)
+      assert.is_nil(p.name)
+    end)
+  end)
+
   describe("with the scan done", function()
     before_each(function()
       ns.StartServiceScan()
@@ -92,6 +148,33 @@ describe("services", function()
       local s = ns.ruleById.trainer.evaluate()[1]
       assert.equal("Wowish: Near Hunter (Hunter Trainer)", s.waypoint.title)
       assert.equal(1413, s.waypoint.map)
+    end)
+
+    it("moves the trainer tip up and says so when the trainer is within 200 yards", function()
+      mock.level = 4
+      local s = ns.ruleById.trainer.evaluate()[1] -- Near Hunter is 80 yards away
+      assert.equal(88, s.priority)
+      assert.matches("It is right here: 80 yards away", s.why)
+      mock.playerX, mock.playerY = 0.6, 0.6
+      s = ns.ruleById.trainer.evaluate()[1]
+      assert.equal(80, s.priority)
+      assert.is_nil(s.why:find("right here", 1, true))
+    end)
+
+    it("does the same for the repair tip", function()
+      mock.durability = { [7] = { 15, 100 } }
+      local s = ns.ruleById.repair.evaluate()[1] -- Smith is 283 yards away
+      assert.equal(75, s.priority)
+      assert.is_nil(s.why:find("right here", 1, true))
+      mock.playerX, mock.playerY = 0.54, 0.54
+      s = ns.ruleById.repair.evaluate()[1]
+      assert.equal(83, s.priority)
+      assert.matches("It is right here: 57 yards away", s.why)
+    end)
+
+    it("never lifts a tip above 100", function()
+      assert.equal(100, ns.NearBoost({ priority = 97, why = "x" }, 10).priority)
+      assert.equal(97, ns.NearBoost({ priority = 97, why = "x" }, nil).priority)
     end)
 
     it("warns about gear before it breaks, louder when almost broken", function()
