@@ -194,6 +194,15 @@ describe("UI", function()
       assert.equal(0, #mock.chat)
     end)
 
+    it("is not used up by a hidden tip's notification before the evaluation", function()
+      rule("talents", "You have 1 unspent talent point.")
+      mock.fire("PLAYER_LEVEL_UP", 24)
+      ns.NotifyChanged() -- the player hid a card within the throttle
+      assert.equal(0, #mock.chat)
+      mock.flush()
+      assert.matches("Level 24: You have 1 unspent", mock.lastChat())
+    end)
+
     it("waits for the end of combat", function()
       rule("talents", "You have 1 unspent talent point.")
       mock.combat = true

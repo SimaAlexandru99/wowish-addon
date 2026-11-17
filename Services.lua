@@ -87,7 +87,8 @@ function ns.NearestService(kind, filter)
   for _, p in pairs(ns.db and ns.db.places and ns.db.places[kind] or {}) do
     if type(p) == "table" and p.faction == mine and type(p.map) == "number"
         and type(p.x) == "number" and type(p.y) == "number" then
-      list[#list + 1] = { place = { map = p.map, x = p.x, y = p.y, name = p.name }, class = p.class, learned = true }
+      list[#list + 1] = { learned = true, class = type(p.class) == "string" and p.class or nil,
+        place = { map = p.map, x = p.x, y = p.y, name = type(p.name) == "string" and p.name or nil } }
     end
   end
   local best, bestD

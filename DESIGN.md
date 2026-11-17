@@ -46,7 +46,8 @@ and the game blocks action-bar and item buttons in combat.
 Only from QuestieDB at run time, only for an NPC/object with exactly one spawn outside instances; otherwise the
 tip has no waypoint. Nothing from QuestieDB is copied into the repo or the package.
 The one other source is the player: `ns.LearnPlace` records where a repairing vendor (`MERCHANT_SHOW`) or the
-player's class trainer (`TRAINER_SHOW`) was opened, per faction and class, and `ns.NearestService` uses those too.
+player's class trainer (`TRAINER_SHOW`) was opened, per faction and class, and `ns.NearestService` uses those too. The class-trainer test matches English spell
+names, so other client languages learn no trainer place yet.
 
 ## Never
 Nothing in combat (window hides on `PLAYER_REGEN_DISABLED`, commands refuse), no input automation

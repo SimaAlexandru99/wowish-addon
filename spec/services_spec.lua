@@ -112,9 +112,21 @@ describe("services", function()
       assert.same({}, { ns.ruleById.trainer.evaluate()[1].waypoint })
     end)
 
+    it("sends the trainer tip to a visited trainer of the player's class", function()
+      mock.secretNames["Vendor Joe"] = true -- no name stored
+      visit("trainer")
+      mock.level = 4
+      local w = ns.ruleById.trainer.evaluate()[1].waypoint
+      assert.equal(1413, w.map)
+      assert.matches("a trainer you visited", w.title)
+    end)
+
     it("skips a malformed entry without error", function()
       ns.db.places.repair["bad"] = { map = 1413, y = 0.5, faction = "H" }
       assert.is_nil(ns.NearestService("repair"))
+      ns.db.places.repair["odd"] = { map = 1413, x = 0.5, y = 0.5, faction = "H", name = {} }
+      mock.durability = { [7] = { 15, 100 } }
+      assert.matches("a vendor you visited", ns.ruleById.repair.evaluate()[1].waypoint.title)
     end)
 
     it("stores a secret NPC name as no name", function()

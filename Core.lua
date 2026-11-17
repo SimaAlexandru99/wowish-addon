@@ -136,6 +136,7 @@ function ns.Evaluate()
   end
   ns.suggestions = top
   ns.updatedAt = time()
+  ns.evals = (ns.evals or 0) + 1 -- lets a listener tell a fresh evaluation from a hidden tip's notification
   ns.NotifyChanged()
   return top
 end

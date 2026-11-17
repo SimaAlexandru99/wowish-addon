@@ -347,9 +347,10 @@ BINDING_HEADER_WOWISH = "Wowish"
 BINDING_NAME_WOWISH_TOGGLE = L["Open or close Wowish"]
 
 -- Login line: once, after the first evaluation that follows login.
-local loginPending, levelPending = false, nil
+local loginPending, levelPending, levelEval = false, nil, 0
 ns.OnSuggestionsUpdated(function(top)
-  if levelPending and not loginPending then
+  -- only an evaluation made after the level-up knows the new spells; hiding a tip notifies with the old list
+  if levelPending and not loginPending and (ns.evals or 0) > levelEval then
     local level, parts, trainer = levelPending, {}, false
     levelPending = nil
     if not ns.db.levelLine then return end
@@ -382,7 +383,7 @@ events:SetScript("OnEvent", function(_, event, level)
   if event == "PLAYER_LOGIN" then
     loginPending = true
   elseif event == "PLAYER_LEVEL_UP" then
-    levelPending = level or UnitLevel("player")
+    levelPending, levelEval = level or UnitLevel("player"), ns.evals or 0
   elseif frame and frame:IsShown() then -- combat started: get out of the way
     frame:Hide()
   end
