@@ -29,7 +29,8 @@ ns.RegisterRule({
       what = string.format(L["Repair your gear: one item is at %d%% durability."], math.floor(r * 100)),
       why = L["Broken items stop giving their stats. Any armor or weapon vendor can repair them."],
       waypoint = npc and { map = npc.place.map, x = npc.place.x, y = npc.place.y,
-        title = string.format("Wowish: %s (%s)", npc.place.name or "?", npc.subName or L["repairs"]) },
+        title = string.format("Wowish: %s (%s)", npc.place.name or L["a vendor you visited"],
+          npc.subName or L["repairs"]) },
     } }
   end,
 })

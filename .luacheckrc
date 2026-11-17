@@ -18,7 +18,7 @@ read_globals = {
   "ButtonFrameTemplate_HidePortrait", "ButtonFrameTemplate_HideButtonBar",
   "Settings", "CreateSettingsButtonInitializer", "MinimalSliderWithSteppersMixin", "C_SettingsUtil",
   "securecallfunction", "GetRealmName", "GetNumTrainerServices", "GetTrainerServiceInfo", "GetTrainerServiceCost",
-  "IsTradeskillTrainer", "MerchantFrame", "CanMerchantRepair", "GetRepairAllCost", "RepairAllItems",
+  "IsTradeskillTrainer", "MerchantFrame", "CanMerchantRepair", "issecretvalue", "GetRepairAllCost", "RepairAllItems",
   "GetMerchantNumItems", "GetMerchantItemID", "GetMerchantItemMaxStack", "BuyMerchantItem", "C_MerchantFrame",
   "IsShiftKeyDown", "GetNumQuestChoices", "GetQuestItemLink", "GetQuestItemInfo", "GetInventoryItemLink",
   "QuestInfoFrame", "QuestInfoRewardsFrame",

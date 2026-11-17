@@ -81,6 +81,50 @@ describe("services", function()
     assert.is_nil(ns.NearestService("trainer"))
   end)
 
+  describe("places you visited", function()
+    local function visit(kind)
+      mock.merchant = { repairCost = 100 }
+      if kind == "repair" then mock.fire("MERCHANT_SHOW") else ns.LearnPlace("trainer") end
+    end
+
+    it("uses a learned repair place when QuestieDB is absent", function()
+      _G.LibQuestieDB = nil
+      visit("repair")
+      mock.playerX = 0.6
+      local e, yards = ns.NearestService("repair")
+      assert.equal("Vendor Joe", e.place.name)
+      assert.is_true(yards > 0)
+      mock.durability = { [7] = { 15, 100 } }
+      assert.equal("Wowish: Vendor Joe (repairs)", ns.ruleById.repair.evaluate()[1].waypoint.title)
+    end)
+
+    it("ignores a place learned by the other faction", function()
+      visit("repair")
+      mock.faction = "Alliance"
+      assert.is_nil(ns.NearestService("repair"))
+    end)
+
+    it("ignores a trainer place of another class in the trainer rule", function()
+      visit("trainer")
+      mock.class = "MAGE"
+      mock.level = 4
+      assert.is_nil(ns.NearestService("trainer", function(e) return e.class == "MAGE" end))
+      assert.same({}, { ns.ruleById.trainer.evaluate()[1].waypoint })
+    end)
+
+    it("skips a malformed entry without error", function()
+      ns.db.places.repair["bad"] = { map = 1413, y = 0.5, faction = "H" }
+      assert.is_nil(ns.NearestService("repair"))
+    end)
+
+    it("stores a secret NPC name as no name", function()
+      mock.secretNames["Vendor Joe"] = true
+      visit("repair")
+      local _, p = next(ns.db.places.repair)
+      assert.is_nil(p.name)
+    end)
+  end)
+
   describe("with the scan done", function()
     before_each(function()
       ns.StartServiceScan()

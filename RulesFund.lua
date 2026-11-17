@@ -105,6 +105,7 @@ recorder:SetScript("OnEvent", function()
     if category == "available" then cost = cost + (tonumber((GetTrainerServiceCost(i))) or 0) end
   end
   if not classTrainer then return end
+  if ns.LearnPlace then ns.LearnPlace("trainer") end
   ns.db.trainerCost[charKey()] = { level = UnitLevel("player") or 1, cost = cost }
   ns.RequestUpdate()
 end)

@@ -54,6 +54,7 @@ end
 local function myClassTrainer(entry)
   local sub = (entry.subName or ""):lower()
   local name, file = UnitClass("player")
+  if entry.class and entry.class == file then return true end
   for _, word in ipairs({ name or "", file and (file:sub(1, 1) .. file:sub(2):lower()) or "" }) do
     if word ~= "" and sub:find(word:lower(), 1, true) then return true end
   end
@@ -70,7 +71,8 @@ ns.RegisterRule({
     for i = 1, math.min(#due, 4) do names[i] = all[i] end
     local trainer = ns.NearestService and ns.NearestService("trainer", myClassTrainer)
     local waypoint = trainer and { map = trainer.place.map, x = trainer.place.x, y = trainer.place.y,
-      title = string.format("Wowish: %s (%s)", trainer.place.name or "?", trainer.subName or "?") }
+      title = string.format("Wowish: %s (%s)", trainer.place.name or L["a trainer you visited"],
+        trainer.subName or UnitClass("player") or "?") } -- a visited place has no subname
     return { {
       id = "trainer", kind = "trainer", priority = 80, details = all, hint = "spellbook", waypoint = waypoint,
       what = string.format(L["Visit your class trainer: %s (%s)."], ns.Count(#due, "new spell"),

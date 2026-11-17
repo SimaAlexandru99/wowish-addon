@@ -1,5 +1,5 @@
 local mock = require("spec.wow_mock")
-local FILES = { "Core.lua", "Locale.lua", "TrainerData.lua", "RulesFund.lua" }
+local FILES = { "Core.lua", "Locale.lua", "Questie.lua", "TrainerData.lua", "Services.lua", "RulesFund.lua" }
 
 local G = 10000 -- copper per gold
 local ORGRIMMAR, APPRENTICE = 76, 33388
@@ -111,6 +111,16 @@ describe("gold for riding", function()
     assert.matches("Next class training: 1g%.$", fund()[1].why)
     mock.level = 36
     assert.matches("%(estimate%)", fund()[1].why)
+  end)
+
+  it("records a trainer place only at a class trainer", function()
+    mock.trainer = { { "Two-Handed Axes", "", "available", 1000 } } -- a weapon master
+    mock.fire("TRAINER_SHOW")
+    assert.same({}, ns.db.places.trainer)
+    mock.trainer = { { "Arcane Shot", "Rank 3", "available", 1800 } }
+    mock.fire("TRAINER_SHOW")
+    local _, p = next(ns.db.places.trainer)
+    assert.same({ 1413, "HUNTER" }, { p.map, p.class })
   end)
 
   it("has a Romanian text for every message", function()

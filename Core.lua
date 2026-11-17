@@ -23,6 +23,7 @@ local DEFAULTS = {
   rewardHint = true, -- mark the recommended quest reward (QuestReward.lua)
   rules = {},        -- [ruleId] = false disables a rule
   auto = { sell = false, repair = false, ammo = false, ammoStacks = 3 }, -- vendor helpers, opt-in
+  places = { repair = {}, trainer = {} }, -- learned NPC places: key -> { map, x, y, name, faction, class }
   trainerCost = {},  -- ["Name-Realm"] = { level, cost }: class training seen at the trainer
 }
 

@@ -96,6 +96,8 @@ local RO = {
   ["Class trainer"] = "Trainer de clasa",
   ["Repairs"] = "Reparatii",
   ["repairs"] = "reparatii",
+  ["a vendor you visited"] = "un negustor vizitat de tine",
+  ["a trainer you visited"] = "un antrenor vizitat de tine",
   ["Repair your gear: one item is at %d%% durability."] = "Repara echipamentul: un item are %d%% durabilitate.",
   ["Broken items stop giving their stats. Any armor or weapon vendor can repair them."] =
     "Itemele stricate nu mai dau statistici. Orice vendor de armuri sau arme le repara.",
