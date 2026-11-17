@@ -32,6 +32,8 @@ click one. English and Romanian.
 - **ShortestPathForever**: "Take me there" asks it for the real route (walking, flights, boats, portals), drawn on
   the map and minimap, and cards show the travel time. Without it, Wowish draws a straight-line guide on the
   minimap (dots and an edge arrow; it does not know roads or flights).
+- **Commissions Forever**: a card when a commission in your log has all its materials in your bags; its button asks
+  Commissions Forever for the route to the hand-ins.
 
 ## Development
 Lua 5.1 with busted and luacheck: `luacheck *.lua spec && busted`. Design: `DESIGN.md`. Releases are built by

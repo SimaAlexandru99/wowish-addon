@@ -16,3 +16,4 @@
 
 ## Runtime only (not copied)
 - QuestieDB: quest finishers, vendors and zone maps are read at run time through `LibQuestieDB` when installed.
+- CommissionsForever (cjber, GPL-3.0): `CommissionsForever.API` is read at run time when installed; nothing is copied.

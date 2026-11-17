@@ -23,15 +23,19 @@ function ns.RouteSeconds(place)
   return ok and type(seconds) == "number" and seconds or nil
 end
 
--- Returns "route", "tomtom", "native", "chat" or "combat".
+-- Returns "route", "tomtom", "native", "chat" or "combat"; with "route", true when it replaced a journey that was
+-- not ours (another addon's, or the player's own /way).
 function ns.TakeMeThere(place, title)
   if ns.inCombat() then return "combat" end
   ns.ClearWaypoint()
   local api = planner()
   if api then
+    local okA, active = pcall(api.Active or function() return false end)
+    local okC, ours = pcall(api.CurrentStop or function() end, OWNER)
+    local replaced = okA and active == true and not (okC and ours)
     local ok, started = xpcall(function() return api.Navigate(OWNER, place.map, place.x, place.y, title) end,
       ns.report)
-    if ok and started then return "route" end
+    if ok and started then return "route", replaced end
   end
   local how = ns.SetWaypoint(place, title)
   if how ~= "combat" then ns.StartGuide(place, title) end
