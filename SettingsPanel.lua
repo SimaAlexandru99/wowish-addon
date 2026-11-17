@@ -11,7 +11,8 @@ local RULE_LABELS = {
   { "turnin", "Quests to hand in" }, { "talents", "Unspent talent points" }, { "bags", "Bag space" },
   { "zone", "Where to quest next" }, { "ammo", "Hunter: ammo" }, { "trainer", "Class trainer" },
   { "repair", "Repairs" }, { "fund", "Gold plan (riding, training)" },
-  { "commissions", "Commissions ready" },
+  { "commissions", "Commissions ready" }, { "greyquests", "Quests that give no XP" },
+  { "questlog", "Quest log space" },
 }
 
 local function checkbox(key, name, get, set, tooltip)

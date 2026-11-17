@@ -87,6 +87,7 @@ function mock.reset()
   -- Player state the rules read. Tests overwrite these fields.
   mock.level, mock.xp, mock.xpMax = 21, 500, 1000
   mock.questLog = {}      -- entries as C_QuestLog.GetInfo returns them; set .complete / .tagID for tests
+  mock.maxQuests = 25
   mock.talents = { false, 0, 0 }
   mock.bags = {}          -- [bag] = { slots = n, free = n, family = n }
   _G.UnitLevel = function() return mock.level end
@@ -96,7 +97,13 @@ function mock.reset()
     for _, e in ipairs(mock.questLog) do if e.questID == id then return e end end
   end
   _G.C_QuestLog = {
-    GetNumQuestLogEntries = function() return #mock.questLog end,
+    GetNumQuestLogEntries = function()
+      local n = 0
+      for _, e in ipairs(mock.questLog) do if not e.isHeader then n = n + 1 end end
+      return #mock.questLog, n
+    end,
+    GetMaxNumQuestsCanAccept = function() return mock.maxQuests end,
+    IsQuestTrivial = function(id) return (byQuestID(id) or {}).trivial == true end,
     GetInfo = function(i) return mock.questLog[i] end,
     IsComplete = function(id) return (byQuestID(id) or {}).complete == true end,
     GetQuestTagInfo = function(id)
