@@ -26,16 +26,24 @@ local function continentOf(map)
   return info and info.mapType == 2 and map or nil
 end
 
--- Offset player -> place in yards, east and north, or nil when not on the same continent.
--- Both points are projected onto the continent map, whose orientation (x east, y south) is known.
-function ns.GuideOffset(place)
-  local pmap = C_Map.GetBestMapForUnit("player")
-  local cont = continentOf(pmap)
-  local ppos = cont and C_Map.GetPlayerMapPosition(cont, "player")
-  if not ppos then return nil end
+-- Position of a place on the continent map cont, or nil when it is not on that continent.
+local function onContinent(place, cont)
   local continentID, world = C_Map.GetWorldPosFromMapPos(place.map, vec(place.x, place.y))
   if not world then return nil end
-  local _, tpos = C_Map.GetMapPosFromWorldPos(continentID, world, cont)
+  local _, pos = C_Map.GetMapPosFromWorldPos(continentID, world, cont)
+  return pos
+end
+
+-- Offset player -> place in yards, east and north, or nil when not on the same continent. With `from` (another
+-- place), the offset is measured from it instead of from the player.
+-- Both points are projected onto the continent map, whose orientation (x east, y south) is known.
+function ns.GuideOffset(place, from)
+  local cont = continentOf(from and from.map or C_Map.GetBestMapForUnit("player"))
+  if not cont then return nil end
+  local ppos
+  if from then ppos = onContinent(from, cont) else ppos = C_Map.GetPlayerMapPosition(cont, "player") end
+  if not ppos then return nil end
+  local tpos = onContinent(place, cont)
   if not tpos then return nil end
   -- the continent's size in yards along each map axis; world axes are swapped against map axes, so measure
   -- distances instead of reading one world coordinate

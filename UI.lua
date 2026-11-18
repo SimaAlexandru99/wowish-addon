@@ -286,7 +286,10 @@ function ns.Go(n)
   else
     ns.Say(string.format(L["waypoint set: %s (%s)."], w.title, ns.FormatPlace(w)))
   end
-  local fm = ns.FlightHint and ns.FlightHint(w)
+  local hint, state
+  if ns.HearthHint then hint, state = ns.HearthHint(w) end
+  if hint then ns.Say(hint) end
+  local fm = state ~= "ready" and ns.FlightHint and ns.FlightHint(w)
   if fm then
     ns.Say(string.format(L["Nearest flight master: %s (%s). Not checked whether you know this flight path."],
       fm.place.name or "?", ns.FormatPlace(fm.place)))

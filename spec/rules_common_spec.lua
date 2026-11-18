@@ -90,6 +90,65 @@ describe("common rules", function()
     end)
   end)
 
+  describe("greyquests", function()
+    local function grey(n, extra)
+      mock.questLog = { H("Z") }
+      for i = 1, n do mock.questLog[#mock.questLog + 1] = Q(i, "G" .. i, 5, { trivial = true }) end
+      for _, q in ipairs(extra or {}) do mock.questLog[#mock.questLog + 1] = q end
+    end
+
+    it("is silent with 2 and names 3 at priority 35", function()
+      grey(2)
+      assert.equal(0, #only(ns, "greyquests"))
+      grey(3)
+      local top = only(ns, "greyquests")
+      assert.equal(35, top[1].priority)
+      assert.matches("3 quests in your log give almost no XP now: G1, G2, G3%.", top[1].what)
+    end)
+
+    it("does not count a completed grey quest", function()
+      grey(2, { Q(9, "Done", 5, { trivial = true, complete = true }) })
+      assert.equal(0, #only(ns, "greyquests"))
+    end)
+
+    it("is silent when the client lacks the API", function()
+      grey(3)
+      _G.C_QuestLog.IsQuestTrivial = nil
+      assert.same({}, only(ns, "greyquests"))
+    end)
+  end)
+
+  describe("questlog", function()
+    local function fill(n, opts)
+      mock.questLog = { H("Z") }
+      for i = 1, n do mock.questLog[#mock.questLog + 1] = Q(i, "Q" .. i, 20, opts) end
+    end
+
+    it("is silent with 3 free, 60 with 2 free, 80 when full", function()
+      fill(22)
+      assert.equal(0, #only(ns, "questlog"))
+      fill(23)
+      local top = only(ns, "questlog")
+      assert.equal(60, top[1].priority)
+      assert.matches("Quest log almost full: 2 free slots of 25%.", top[1].what)
+      fill(25)
+      assert.equal(80, only(ns, "questlog")[1].priority)
+    end)
+
+    it("names the grey quests first", function()
+      fill(24, { trivial = true })
+      local top = only(ns, "questlog")
+      assert.matches("Grey ones to drop first: Q1, Q2, Q3, %.%.%.%.", top[1].why)
+      assert.equal(24, #top[1].details)
+    end)
+
+    it("is silent when the client lacks the API", function()
+      fill(25)
+      _G.C_QuestLog.GetMaxNumQuestsCanAccept = nil
+      assert.same({}, only(ns, "questlog"))
+    end)
+  end)
+
   describe("zone", function()
     it("picks the zone with most open quests near your level", function()
       mock.level = 21

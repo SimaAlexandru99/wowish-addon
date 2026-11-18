@@ -123,6 +123,13 @@ describe("gold for riding", function()
     assert.same({ 1413, "HUNTER" }, { p.map, p.class })
   end)
 
+  it("knows a class trainer on a client in another language", function()
+    _G.C_Spell.GetSpellName = function() return "Arkaner Schuss" end -- what a German client calls our spells
+    mock.trainer = { { "Arkaner Schuss", "Rang 3", "available", 1800 } }
+    mock.fire("TRAINER_SHOW")
+    assert.is_truthy(next(ns.db.places.trainer))
+  end)
+
   it("has a Romanian text for every message", function()
     ns.db.locale = "roRO"
     assert.matches("^Strange pentru Apprentice Riding", fund()[1].what)

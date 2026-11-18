@@ -25,6 +25,8 @@ local DEFAULTS = {
   rules = {},        -- [ruleId] = false disables a rule
   auto = { sell = false, repair = false, ammo = false, ammoStacks = 3 }, -- vendor helpers, opt-in
   places = { repair = {}, trainer = {} }, -- learned NPC places: key -> { map, x, y, name, faction, class }
+  hearth = {},       -- ["Name-Realm"] = { map, x, y, name }: where the inn is (Hearth.lua)
+  hearthHint = true,
   trainerCost = {},  -- ["Name-Realm"] = { level, cost }: class training seen at the trainer
 }
 
@@ -118,6 +120,10 @@ function ns.Evaluate()
       elseif type(res) == "table" then
         for _, s in ipairs(res) do
           s.rule = rule.id
+          if s.waypoint and ns.HearthHint then -- outside the rule's xpcall: must not stop the other tips
+            local fine, hint = xpcall(function() return ns.HearthHint(s.waypoint) end, report)
+            if fine and hint then s.why = (s.why or "") .. " " .. hint end
+          end
           all[#all + 1] = s
         end
       end
