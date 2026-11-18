@@ -321,10 +321,16 @@ end
 local function onSlash(msg)
   msg = strtrim((msg or ""):lower())
   local n = msg:match("^go%s+(%d+)$")
+  local h = msg:match("^hide%s+(%d+)$")
   if msg == "" or msg == "show" then
     ns.Toggle()
   elseif n then
     ns.Go(tonumber(n))
+  elseif h then
+    local t = ns.Visible()[tonumber(h)]
+    if not t then return ns.Say(string.format(L["there is no tip %s."], h)) end
+    ns.dismissed[t.id] = t.what -- same as the card's x
+    ns.NotifyChanged()
   elseif msg == "clear" then
     ns.Say(ns.StopNavigation() and L["waypoint removed."] or L["no Wowish waypoint is set."])
   elseif msg == "report" then
@@ -332,7 +338,7 @@ local function onSlash(msg)
   elseif msg == "welcome" and ns.ShowWelcome then
     ns.ShowWelcome()
   else
-    ns.Say(L["/wowish (window), /wowish go N (take me there), /wowish clear, /wowish welcome, /wowish report"])
+    ns.Say(L["/wowish (window), /wowish go N (take me there), hide N, clear, welcome, report"])
   end
 end
 

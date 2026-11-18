@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.2 (unreleased)
+- `/wowish hide N` hides tip N from the keyboard, the same as the card's x.
+- Tests for the repair thresholds (20% and 5%) and for the new command.
+
 ## v0.6.1
 - Hearthstone hint: when your inn is within 300 yards of a tip's place and you are far from it, the card and the
   "Take me there" chat line say your Hearthstone is ready (or ready in under 5 minutes). Wowish learns where your
