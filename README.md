@@ -31,7 +31,7 @@ them.
 - Optional: a one-line bar under the minimap with the current #1 tip (Options > AddOns > Wowish).
 - Hover a card for its full text and a small x to hide it. Cards with a place have Take me there, the zone tip
   has Map, and talent, trainer and bag tips name the key that opens that window. Buttons never act for you.
-- `/wowish go N`: take me there for tip N. `/wowish clear`: stop it. `/wowish welcome`: the welcome screen.
+- `/wowish go N`: take me there for tip N. `/wowish hide N`: hide tip N (same as its x). `/wowish clear`: stop it. `/wowish welcome`: the welcome screen.
   `/wowish report`: versions, helpers and recent errors, to paste into a bug report.
 - After a level-up, one chat line says what is new at your trainer and whether you have talent points to spend.
 - Options > AddOns > Wowish: language, login and level-up lines, window size, which tips to show.

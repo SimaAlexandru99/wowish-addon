@@ -205,3 +205,27 @@ describe("services", function()
     end)
   end)
 end)
+
+describe("repair rule thresholds", function()
+  local ns
+  before_each(function()
+    mock.reset()
+    ns = mock.load(FILES)
+    mock.fire("ADDON_LOADED", "Wowish")
+  end)
+
+  it("stays quiet at 20% and above, and when nothing can break", function()
+    assert.same({}, ns.ruleById.repair.evaluate())
+    mock.durability[1] = { 20, 100 }
+    assert.same({}, ns.ruleById.repair.evaluate())
+  end)
+
+  it("speaks below 20% and is urgent below 5%, using the lowest item", function()
+    mock.durability[1] = { 100, 100 }
+    mock.durability[2] = { 19, 100 }
+    local tip = ns.ruleById.repair.evaluate()[1]
+    assert.equal(75, tip.priority)
+    mock.durability[3] = { 4, 100 }
+    assert.equal(90, ns.ruleById.repair.evaluate()[1].priority)
+  end)
+end)

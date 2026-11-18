@@ -48,6 +48,17 @@ describe("access and window layout", function()
       assert.truthy(shownText("^1$"))
     end)
 
+    it("/wowish hide N hides the tip like the x does, and rejects a number with no tip", function()
+      setTips(TIPS)
+      local b = _G.WowishMinimapButton
+      assert.truthy(shownText("^2$"))
+      SlashCmdList.WOWISH("hide 1")
+      assert.truthy(shownText("^1$"))
+      SlashCmdList.WOWISH("hide 9") -- only one tip left: nothing changes
+      assert.truthy(shownText("^1$"))
+      assert.is_true(b.shown)
+    end)
+
     it("flashes once when more tips arrive, never at login, in combat or with the window open", function()
       local function plays()
         for _, w in ipairs(mock.widgets) do
