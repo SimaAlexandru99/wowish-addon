@@ -1,15 +1,15 @@
 # Changelog
 
-## v0.7.0 (unreleased)
+## v0.7.0
 - Show hidden: a button in the window (and `/wowish unhide`) brings back tips you hid or snoozed.
 - Snooze: the z on a card (and `/wowish snooze N`) hides a tip for 30 minutes.
 - The bar under the minimap: click takes you to the #1 tip when it has a place; right-click opens the window.
 - The welcome screen also has the level-up line and Hearthstone hint options, and says the vendor helpers are off.
-- `/wowish new` lists what is new in this version (the lines live in `Changes.lua`: update them each release).
-
-## v0.6.2 (unreleased)
 - `/wowish hide N` hides tip N from the keyboard, the same as the card's x.
-- Tests for the repair thresholds (20% and 5%) and for the new command.
+- `/wowish new` lists what is new in this version (the lines live in `Changes.lua`: update them each release).
+- Tests for the repair thresholds (20% and 5%), the new commands and the next-tip bar click.
+
+There was no v0.6.2: its change (`/wowish hide N`) ships here.
 
 ## v0.6.1
 - Hearthstone hint: when your inn is within 300 yards of a tip's place and you are far from it, the card and the
