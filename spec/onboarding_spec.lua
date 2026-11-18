@@ -1,7 +1,7 @@
 local mock = require("spec.wow_mock")
 local FILES = { "Core.lua", "Locale.lua", "Questie.lua",
   "Waypoint.lua", "MinimapGuide.lua", "Navigation.lua", "RulesCommon.lua", "RulesHunter.lua",
-  "UI.lua", "Welcome.lua", "SettingsPanel.lua" }
+  "UI.lua", "Changes.lua", "Welcome.lua", "SettingsPanel.lua" }
 local H, Q = mock.header, mock.quest
 
 local function texts()

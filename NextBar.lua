@@ -1,7 +1,9 @@
 -- Wowish next-tip bar: one quiet line under the minimap with the current #1 tip (off by default).
--- Click opens the window; hidden in combat and when there is nothing to do. Never flashes or plays sounds.
+-- Click: take me there for the #1 tip (the window if it has no place); right-click: the window.
+-- Hidden in combat and when there is nothing to do. Never flashes or plays sounds.
 -- Copyright (C) 2026 Wowish authors. License: GPL-3.0-or-later (see LICENSE).
 local _, ns = ...
+local L = ns.L
 
 local bar
 
@@ -16,13 +18,19 @@ local function build()
   bar.text:SetPoint("RIGHT", -6, 0)
   bar.text:SetJustifyH("LEFT")
   bar.text:SetWordWrap(false)
-  bar:SetScript("OnClick", function() ns.Toggle() end)
+  bar:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  bar:SetScript("OnClick", function(_, button)
+    local first = ns.Visible()[1]
+    if button ~= "RightButton" and first and first.waypoint then ns.Go(1) else ns.Toggle() end
+  end)
   bar:SetScript("OnEnter", function(self)
     local first = ns.Visible()[1]
     if not first then return end
     GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
     GameTooltip:AddLine(first.what, 1, 1, 1, true)
     GameTooltip:AddLine(first.why or "", 0.8, 0.8, 0.8, true)
+    GameTooltip:AddLine(first.waypoint and L["Click: take me there. Right-click: window."] or L["Click: window."],
+      1, 0.82, 0, true)
     GameTooltip:Show()
   end)
   bar:SetScript("OnLeave", function() GameTooltip:Hide() end)

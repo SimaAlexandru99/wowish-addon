@@ -25,13 +25,42 @@ function ns.Say(msg)
   if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99Wowish|r: " .. tostring(msg)) end
 end
 
--- Suggestions the player has not hidden this session.
+local SNOOZE = 1800 -- seconds
+ns.snoozed = {} -- [suggestion id] = { text, time it comes back }
+
+local function hidden(s)
+  if ns.dismissed[s.id] == s.what then return true end
+  local z = ns.snoozed[s.id]
+  -- shortcut: a snoozed tip returns at the next refresh after its time, not at the exact second
+  return z ~= nil and z[1] == s.what and z[2] > time()
+end
+
+-- Suggestions the player has not hidden or snoozed this session.
 function ns.Visible()
   local out = {}
   for _, s in ipairs(ns.suggestions) do
-    if ns.dismissed[s.id] ~= s.what then out[#out + 1] = s end
+    if not hidden(s) then out[#out + 1] = s end
   end
   return out
+end
+
+function ns.HiddenCount()
+  local n = 0
+  for _, s in ipairs(ns.suggestions) do
+    if hidden(s) then n = n + 1 end
+  end
+  return n
+end
+
+function ns.Snooze(s)
+  ns.snoozed[s.id] = { s.what, time() + SNOOZE }
+  ns.NotifyChanged()
+end
+
+function ns.ShowHidden()
+  for k in pairs(ns.dismissed) do ns.dismissed[k] = nil end
+  for k in pairs(ns.snoozed) do ns.snoozed[k] = nil end
+  ns.NotifyChanged()
 end
 
 function ns.AgeText(t)
@@ -41,7 +70,7 @@ function ns.AgeText(t)
   return string.format(L["updated %d min ago"], math.floor(s / 60))
 end
 
-local frame, scroll, content, sub, empty, settingsButton
+local frame, scroll, content, sub, empty, settingsButton, unhideButton
 local cards = {}
 
 -- Open a game window for a tip. Only the world map: opening the spellbook, talents or bags from addon code
@@ -125,6 +154,22 @@ local function newCard(i)
     GameTooltip:Hide()
     if not c:IsMouseOver() then c.hide:Hide() end
   end)
+  -- "z": snooze for 30 minutes. A child of the x, so it shows and hides with it.
+  c.snooze = CreateFrame("Button", nil, c.hide)
+  c.snooze:SetSize(16, 16)
+  c.snooze:SetPoint("TOPRIGHT", c, "TOPRIGHT", -4, -22)
+  c.snooze:SetNormalFontObject("GameFontDisable")
+  c.snooze:SetHighlightFontObject("GameFontHighlight")
+  c.snooze:SetText("z")
+  c.snooze:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+    GameTooltip:AddLine(L["Snooze this tip for 30 minutes."], 1, 1, 1, true)
+    GameTooltip:Show()
+  end)
+  c.snooze:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+    if not c:IsMouseOver() then c.hide:Hide() end
+  end)
   c.go = CreateFrame("Button", nil, c, "UIPanelButtonTemplate")
   c.go:SetSize(90, 20)
   c.go:SetPoint("TOPRIGHT", -24, -6)
@@ -137,7 +182,7 @@ local function newCard(i)
   c:EnableMouse(true)
   c:SetScript("OnLeave", function()
     GameTooltip:Hide()
-    if not c.hide:IsMouseOver() then c.hide:Hide() end
+    if not c.hide:IsMouseOver() and not c.snooze:IsMouseOver() then c.hide:Hide() end
   end)
   cards[i] = c
   return c
@@ -171,6 +216,7 @@ local function fillCard(c, i, s)
     ns.dismissed[s.id] = s.what
     ns.NotifyChanged() -- window, minimap badge and next-tip bar follow
   end)
+  c.snooze:SetScript("OnClick", function() ns.Snooze(s) end)
   local h = math.max(44, c.what:GetStringHeight() + c.why:GetStringHeight() + 22)
   c:SetHeight(h)
   return h
@@ -213,6 +259,10 @@ local function build()
     settingsButton:SetPoint("BOTTOMRIGHT", -12, 8)
     settingsButton:SetScript("OnClick", function() ns.OpenSettings() end)
   end
+  unhideButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+  unhideButton:SetSize(150, 22)
+  unhideButton:SetPoint("BOTTOMLEFT", 12, 8)
+  unhideButton:SetScript("OnClick", function() ns.ShowHidden() end)
   ns.RefreshTexts()
   ns.ApplyLayout()
   frame:Hide()
@@ -244,6 +294,9 @@ function ns.Render()
   end
   for i = #list + 1, #cards do cards[i]:Hide() end
   empty:SetShown(#list == 0)
+  local nHidden = ns.HiddenCount()
+  unhideButton:SetShown(nHidden > 0)
+  unhideButton:SetText(string.format(L["Show %d hidden"], nHidden))
   content:SetHeight(math.max(y, 1))
   frame:SetHeight(math.min(MAX_HEIGHT, math.max(MIN_HEIGHT, y + CHROME)))
   if scroll.ScrollBar then scroll.ScrollBar:SetShown(y + CHROME > MAX_HEIGHT) end -- only when it cannot fit
@@ -322,6 +375,7 @@ local function onSlash(msg)
   msg = strtrim((msg or ""):lower())
   local n = msg:match("^go%s+(%d+)$")
   local h = msg:match("^hide%s+(%d+)$")
+  local z = msg:match("^snooze%s+(%d+)$")
   if msg == "" or msg == "show" then
     ns.Toggle()
   elseif n then
@@ -331,6 +385,14 @@ local function onSlash(msg)
     if not t then return ns.Say(string.format(L["there is no tip %s."], h)) end
     ns.dismissed[t.id] = t.what -- same as the card's x
     ns.NotifyChanged()
+  elseif z then
+    local t = ns.Visible()[tonumber(z)]
+    if not t then return ns.Say(string.format(L["there is no tip %s."], z)) end
+    ns.Snooze(t)
+  elseif msg == "unhide" then
+    ns.ShowHidden()
+  elseif msg == "new" and ns.WhatsNew then
+    ns.WhatsNew()
   elseif msg == "clear" then
     ns.Say(ns.StopNavigation() and L["waypoint removed."] or L["no Wowish waypoint is set."])
   elseif msg == "report" then
@@ -338,7 +400,7 @@ local function onSlash(msg)
   elseif msg == "welcome" and ns.ShowWelcome then
     ns.ShowWelcome()
   else
-    ns.Say(L["/wowish (window), /wowish go N (take me there), hide N, clear, welcome, report"])
+    ns.Say(L["/wowish (window), /wowish go N, hide N, snooze N, unhide, new, clear, welcome, report"])
   end
 end
 
