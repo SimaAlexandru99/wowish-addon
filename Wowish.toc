@@ -27,6 +27,7 @@ QuestReward.lua
 Services.lua
 Hearth.lua
 UI.lua
+Changes.lua
 MinimapButton.lua
 NextBar.lua
 Welcome.lua

@@ -43,7 +43,7 @@ local function build()
   welcome = CreateFrame("Frame", "WowishWelcomeFrame", UIParent, "ButtonFrameTemplate")
   if ButtonFrameTemplate_HidePortrait then ButtonFrameTemplate_HidePortrait(welcome) end
   if ButtonFrameTemplate_HideButtonBar then ButtonFrameTemplate_HideButtonBar(welcome) end
-  welcome:SetSize(WIDTH, 432)
+  welcome:SetSize(WIDTH, 508)
   welcome:SetPoint("CENTER")
   welcome:SetFrameStrata("DIALOG")
   welcome:SetClampedToScreen(true)
@@ -74,7 +74,13 @@ local function build()
       ns.db.nextBar = on
       ns.UpdateNextBar()
     end),
+    checkbox(-374, function() return ns.db.levelLine end, function(on) ns.db.levelLine = on end),
+    checkbox(-400, function() return ns.db.hearthHint end, function(on) ns.db.hearthHint = on end),
   }
+  welcome.helpersNote = welcome:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+  welcome.helpersNote:SetPoint("TOPLEFT", 18, -432)
+  welcome.helpersNote:SetWidth(WIDTH - 36)
+  welcome.helpersNote:SetJustifyH("LEFT")
 
   closeButton = CreateFrame("Button", nil, welcome, "UIPanelButtonTemplate")
   closeButton:SetSize(110, 24)
@@ -104,6 +110,9 @@ function ns.FillWelcome()
   checks[2].label:SetText(L["Show a one-line summary in chat when I log in"])
   checks[3].label:SetText(L["Show the minimap button"])
   checks[4].label:SetText(L["Show the next tip under the minimap"])
+  checks[5].label:SetText(L["Show a line in chat after a level-up"])
+  checks[6].label:SetText(L["Hint when my Hearthstone is a good way to get there"])
+  welcome.helpersNote:SetText(L["Vendor helpers (sell grey items, repair, Hunter ammo) are off. Turn them on in Options > AddOns > Wowish."])
   for _, cb in ipairs(checks) do cb:SetChecked(cb.get() and true or false) end
   welcome.foot:SetText(L["Reopen anytime: /wowish welcome"])
   closeButton:SetText(L["Close"])

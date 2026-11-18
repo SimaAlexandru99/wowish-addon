@@ -58,8 +58,25 @@ local RO = {
   ["waypoint set: %s (%s)."] = "waypoint pus: %s (%s).",
   ["waypoint removed."] = "waypoint sters.",
   ["no Wowish waypoint is set."] = "niciun waypoint Wowish activ.",
-  ["/wowish (window), /wowish go N (take me there), hide N, clear, welcome, report"] =
-    "/wowish (fereastra), /wowish go N (du-ma acolo), hide N, clear, welcome, report",
+  ["/wowish (window), /wowish go N, hide N, snooze N, unhide, new, clear, welcome, report"] =
+    "/wowish (fereastra), /wowish go N, hide N, snooze N, unhide, new, clear, welcome, report",
+  ["Click: take me there. Right-click: window."] = "Click: du-ma acolo. Click dreapta: fereastra.",
+  ["Click: window."] = "Click: fereastra.",
+  ["Show a line in chat after a level-up"] = "Arata o linie in chat dupa fiecare nivel nou",
+  ["Hint when my Hearthstone is a good way to get there"] = "Sugereaza Hearthstone cand e cea mai buna cale",
+  ["Vendor helpers (sell grey items, repair, Hunter ammo) are off. Turn them on in Options > AddOns > Wowish."] =
+    "Ajutoarele la vanzator (vinde gri, repara, munitie Hunter) sunt oprite. Porneste-le in Options > AddOns > Wowish.",
+  ["What is new in Wowish %s:"] = "Ce e nou in Wowish %s:",
+  ["Hidden tips: a Show hidden button in the window (or /wowish unhide) brings them back."] =
+    "Sfaturi ascunse: butonul Arata ascunse din fereastra (sau /wowish unhide) le aduce inapoi.",
+  ["Snooze: the z on a card (or /wowish snooze N) hides a tip for 30 minutes."] =
+    "Amanare: z de pe card (sau /wowish snooze N) ascunde un sfat 30 de minute.",
+  ["The bar under the minimap now takes you to the #1 tip when you click it; right-click opens the window."] =
+    "Bara de sub minimap te duce acum la sfatul #1 la click; click dreapta deschide fereastra.",
+  ["The welcome screen has the level-up line and Hearthstone hint options."] =
+    "Ecranul de bun venit are si optiunile pentru linia de level-up si hint-ul Hearthstone.",
+  ["Snooze this tip for 30 minutes."] = "Amana acest sfat 30 de minute.",
+  ["Show %d hidden"] = "Arata %d ascunse",
   ["nothing urgent right now. (/wowish)"] = "nimic urgent acum. (/wowish)",
   ["%s. #1: %s (/wowish)"] = "%s. #1: %s (/wowish)",
   -- welcome
