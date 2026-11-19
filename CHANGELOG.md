@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.1
+- A tip you hide or snooze no longer takes a place in the top 5: the next tip moves up.
+- Hiding the bag space, quest log, repair, next zone or gold plan tip now holds until the situation itself changes
+  (almost full becomes full), not until the next loot or coin changes a number in it.
+- Gold plan: if you could not afford Apprentice Riding at 40, Wowish keeps reminding you about it instead of going
+  quiet or jumping to Journeyman.
+
 ## v0.7.0
 - Show hidden: a button in the window (and `/wowish unhide`) brings back tips you hid or snoozed.
 - Snooze: the z on a card (and `/wowish snooze N`) hides a tip for 30 minutes.

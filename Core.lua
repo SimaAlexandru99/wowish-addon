@@ -130,27 +130,77 @@ function ns.Evaluate()
     end
   end
   table.sort(all, byPriority)
-  local top, perRule = {}, {}
-  for _, s in ipairs(all) do
-    local cap = ns.ruleById[s.rule].maxInTop
-    local n = perRule[s.rule] or 0
-    if not cap or n < cap then
-      perRule[s.rule] = n + 1
-      top[#top + 1] = s
-      if #top == ns.TOP then break end
-    end
+  -- A hide lasts one episode: once the tip is gone or its state changed, the same advice may come back later.
+  local current = {}
+  for _, s in ipairs(all) do current[s.id] = s.state or s.what end
+  for id, key in pairs(ns.dismissed) do
+    if current[id] ~= key then ns.dismissed[id] = nil end
   end
-  ns.suggestions = top
+  ns.suggestions = all -- every tip; ns.Visible() picks what is shown
   ns.updatedAt = time()
   ns.evals = (ns.evals or 0) + 1 -- lets a listener tell a fresh evaluation from a hidden tip's notification
   ns.NotifyChanged()
-  return top
+  return ns.Visible()
+end
+
+local SNOOZE = 1800 -- seconds
+ns.dismissed = {} -- [suggestion id] = state (or text) when hidden; the tip returns once that changes
+ns.snoozed = {} -- [suggestion id] = { state (or text), time it comes back }
+
+-- A tip's `state` names its situation ("almost" or "full"), so a counter in its text does not undo a hide.
+local function hidden(s)
+  local key = s.state or s.what
+  if key ~= nil and ns.dismissed[s.id] == key then return true end
+  local z = ns.snoozed[s.id]
+  -- shortcut: a snoozed tip returns at the next refresh after its time, not at the exact second
+  return z ~= nil and z[1] == key and z[2] > time()
+end
+
+-- The tips shown: by priority, without hidden or snoozed ones, at most maxInTop per rule and ns.TOP in all.
+function ns.Visible()
+  local out, perRule = {}, {}
+  for _, s in ipairs(ns.suggestions) do
+    if not hidden(s) then
+      local rule = s.rule and ns.ruleById[s.rule] -- tests set tips without a rule
+      local cap, n = rule and rule.maxInTop, perRule[s.rule] or 0
+      if not cap or n < cap then
+        if cap then perRule[s.rule] = n + 1 end
+        out[#out + 1] = s
+        if #out == ns.TOP then break end
+      end
+    end
+  end
+  return out
+end
+
+function ns.HiddenCount()
+  local n = 0
+  for _, s in ipairs(ns.suggestions) do
+    if hidden(s) then n = n + 1 end
+  end
+  return n
+end
+
+function ns.Hide(s)
+  ns.dismissed[s.id] = s.state or s.what
+  ns.NotifyChanged()
+end
+
+function ns.Snooze(s)
+  ns.snoozed[s.id] = { s.state or s.what, time() + SNOOZE }
+  ns.NotifyChanged()
+end
+
+function ns.ShowHidden()
+  for k in pairs(ns.dismissed) do ns.dismissed[k] = nil end
+  for k in pairs(ns.snoozed) do ns.snoozed[k] = nil end
+  ns.NotifyChanged()
 end
 
 -- Tell every listener (window, minimap button, next-tip bar, login line) the list changed; a failing one is
 -- reported and does not stop the others. Also used when the player hides a tip.
 function ns.NotifyChanged()
-  local top = ns.suggestions
+  local top = ns.Visible()
   for _, cb in ipairs(ns.callbacks) do xpcall(function() cb(top) end, report) end
 end
 

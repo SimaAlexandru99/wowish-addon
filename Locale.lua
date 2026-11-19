@@ -67,14 +67,12 @@ local RO = {
   ["Vendor helpers (sell grey items, repair, Hunter ammo) are off. Turn them on in Options > AddOns > Wowish."] =
     "Ajutoarele la vanzator (vinde gri, repara, munitie Hunter) sunt oprite. Porneste-le in Options > AddOns > Wowish.",
   ["What is new in Wowish %s:"] = "Ce e nou in Wowish %s:",
-  ["Hidden tips: a Show hidden button in the window (or /wowish unhide) brings them back."] =
-    "Sfaturi ascunse: butonul Arata ascunse din fereastra (sau /wowish unhide) le aduce inapoi.",
-  ["Snooze: the z on a card (or /wowish snooze N) hides a tip for 30 minutes."] =
-    "Amanare: z de pe card (sau /wowish snooze N) ascunde un sfat 30 de minute.",
-  ["The bar under the minimap now takes you to the #1 tip when you click it; right-click opens the window."] =
-    "Bara de sub minimap te duce acum la sfatul #1 la click; click dreapta deschide fereastra.",
-  ["The welcome screen has the level-up line and Hearthstone hint options."] =
-    "Ecranul de bun venit are si optiunile pentru linia de level-up si hint-ul Hearthstone.",
+  ["Hidden and snoozed tips no longer take a place in the top 5."] =
+    "Sfaturile ascunse sau amanate nu mai ocupa un loc in top 5.",
+  ["A hidden bag, quest log, repair or gold tip stays hidden until the situation changes, not just a number."] =
+    "Un sfat ascuns despre genti, jurnalul de questuri, reparatii sau aur ramane ascuns pana se schimba situatia, nu doar un numar.",
+  ["Missed Apprentice Riding at 40? The gold plan keeps it as your goal."] =
+    "Nu ai luat Apprentice Riding la 40? Planul de aur il pastreaza ca tinta.",
   ["Snooze this tip for 30 minutes."] = "Amana acest sfat 30 de minute.",
   ["Show %d hidden"] = "Arata %d ascunse",
   ["nothing urgent right now. (/wowish)"] = "nimic urgent acum. (/wowish)",

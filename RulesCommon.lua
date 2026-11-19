@@ -156,6 +156,7 @@ ns.RegisterRule({
     return { {
       -- with 0 free slots loot is being lost right now
       id = "bags", kind = "bags", priority = free == 0 and 86 or 65, hint = "bags",
+      state = free == 0 and "full" or "almost", -- a hidden tip comes back when the bags fill, not at every loot
       what = string.format(L["Bags almost full: %s of %d."], ns.Count(free, "free slot"), total),
       why = L["With full bags you start leaving loot behind. Sell or destroy grey items."],
     } }
@@ -182,7 +183,7 @@ ns.RegisterRule({
     local xp = xpMax > 0 and string.format(L[" You are at %d%% of level %d."],
       math.floor(UnitXP("player") / xpMax * 100), lvl) or ""
     return { {
-      id = "zone:" .. best, kind = "zone", priority = 50, details = allTitles(quests),
+      id = "zone:" .. best, kind = "zone", priority = 50, details = allTitles(quests), state = best,
       action = { open = "map", arg = ns.ZoneMapID(best) },
       what = string.format(L["Keep questing in %s: %s at your level (%s)."],
         best, ns.Count(#quests, "open quest"), titles(quests, 3)),
@@ -220,6 +221,7 @@ ns.RegisterRule({
     local free = max - used
     if free > 2 then return {} end
     local s = { id = "questlog", kind = "quest", priority = free <= 0 and 80 or 60,
+      state = free <= 0 and "full" or "almost",
       what = string.format(L["Quest log almost full: %s of %d."], ns.Count(math.max(free, 0), "free slot"), max),
       why = L["With a full log you cannot accept new quests."] }
     local grey = greyOpen()

@@ -88,6 +88,16 @@ describe("common rules", function()
       mock.bags[0].free, mock.bags[1].free = 3, 2
       assert.equal(0, #only(ns, "bags"))
     end)
+
+    it("stays hidden while the bags fill, and returns when they are full", function()
+      mock.bags = { [0] = { slots = 16, free = 3 } }
+      ns.Hide(only(ns, "bags")[1])
+      assert.equal(0, #ns.Evaluate())
+      mock.bags[0].free = 2
+      assert.equal(0, #ns.Evaluate())
+      mock.bags[0].free = 0
+      assert.equal("bags", ns.Evaluate()[1].id)
+    end)
   end)
 
   describe("greyquests", function()

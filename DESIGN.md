@@ -23,12 +23,14 @@ client events ──► Core.lua: throttled (1 s), never in combat ──► rul
 
 ## Rule contract
 `ns.RegisterRule({ id, events, maxInTop?, evaluate })`. `evaluate()` only reads client state and returns
-`{ id, kind, priority 0-100, what, why, waypoint?, details?, action? }`. Core sorts by priority, applies `maxInTop`, keeps 5,
-isolates a failing rule with `xpcall` and hands its error to the client error handler (BugSack), and skips rules
-the player turned off (`WowishDB.rules[id] == false`). Tips may add `details` (full list for the card tooltip) and
-`action` (`{ open = "map", arg }`, a button that only opens the world map) or `hint` (`"talents"` | `"spellbook"` |
-`"bags"`: names the player's own key). Never open the spellbook, talents or bags from addon code: it taints them
-and the game blocks action-bar and item buttons in combat.
+`{ id, kind, priority 0-100, what, why, waypoint?, details?, action?, state? }`. Core sorts by priority, skips
+hidden tips, then applies `maxInTop` and keeps 5, isolates a failing rule with `xpcall` and hands its error to the
+client error handler (BugSack), and skips rules the player turned off (`WowishDB.rules[id] == false`). Tips may add
+`details` (full list for the card tooltip) and `action` (`{ open = "map", arg }`, a button that only opens the world
+map) or `hint` (`"talents"` | `"spellbook"` | `"bags"`: names the player's own key). A tip whose text carries a
+counter adds `state` (a short name such as `"almost"` or `"full"`): hide and snooze hold while `state` (else `what`)
+stays the same, and a hide ends once the tip goes away. Never open the spellbook, talents or bags from addon code: it taints them and the game blocks
+action-bar and item buttons in combat.
 
 | rule | priority | source |
 |---|---|---|
@@ -36,7 +38,7 @@ and the game blocks action-bar and item buttons in combat.
 | turnin | 90 on your map, 70 place unknown, 68 on the way, 60 elsewhere; max 2 | `C_QuestLog` + QuestieDB finisher |
 | trainer | 80, +8 when the trainer is within 200 yards | own class spells due by level/race (`TrainerData.lua`, from OneForAll), known via `C_SpellBook.IsSpellKnown` |
 | repair | 90 below 5% durability, 75 below 20%, +8 when the NPC is within 200 yards | `GetInventoryItemDurability`, nearest REPAIR NPC |
-| fund (gold plan) | saving 30 (60 two levels before), saved 20 (free to spend), short 70, ready 85 with the race riding trainer; Apprentice 30-41, Journeyman 50-60; next class training cost (recorded at `TRAINER_SHOW` per character and level, else 54c x level^2) | `GetMoney`, home-faction `C_Reputation` (Honored: -10%), `IsPlayerSpell` or riding skill line 762; trainers from Polestar |
+| fund (gold plan) | saving 30 (60 two levels before), saved 20 (free to spend), short 70, ready 85 with the race riding trainer; the first tier still to buy, Apprentice from 30, Journeyman from 50 (a late rider keeps the Apprentice tip); next class training cost (recorded at `TRAINER_SHOW` per character and level, else 54c x level^2) | `GetMoney`, home-faction `C_Reputation` (Honored: -10%), `IsPlayerSpell` or riding skill line 762; trainers from Polestar |
 | commissions | 65 when every material of a commission in the log is in the bags; button asks CommissionsForever to route to the hand-ins | `CommissionsForever.API.Materials`, `Subscribe`, `NavigateActiveAssignments` (optional addon) |
 | ammo (Hunter) | 88 none of the right type, 85 outdated | weapon subclass, own ammo table, QuestieDB vendors |
 | bags | 86 at 0 free regular slots (loot lost now), 65 at 1-4 | `C_Container`, bag family 0 only |

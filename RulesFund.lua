@@ -13,8 +13,8 @@ local L = ns.L
 
 local HONORED, SKILL_RIDING = 6, 762 -- FactionData.reaction 6 = Honored
 local TIERS = {
-  { name = "Apprentice Riding", level = 40, from = 30, upto = 41, price = 1000000, spell = 33388, maxRank = 1 },
-  { name = "Journeyman Riding", level = 60, from = 50, upto = 60, price = 10000000, spell = 33391, maxRank = 150 },
+  { name = "Apprentice Riding", level = 40, from = 30, price = 1000000, spell = 33388, maxRank = 1 },
+  { name = "Journeyman Riding", level = 60, from = 50, price = 10000000, spell = 33391, maxRank = 150 },
 }
 local FREE_CLASS = { PALADIN = true, WARLOCK = true } -- Apprentice only
 -- By race ID: riding trainer (uiMap, 0..1) and home faction. Skyborne (95, 96): no faction, so no discount.
@@ -56,18 +56,22 @@ local function known(tier)
   return info ~= nil and (tonumber(info.maxRank) or 0) >= tier.maxRank
 end
 
--- The riding tier this character saves for now, and its price; nil outside the saving windows, when it is
--- learned already, or when a class quest gives it.
+-- The riding tier this character saves for now, and its price: the first one still to buy (a class quest gives
+-- some for free), so a player who could not afford Apprentice at 40 still hears about it; nil before its level.
 local function goal()
   local level = UnitLevel("player") or 1
-  local tier
-  for _, t in ipairs(TIERS) do
-    if level >= t.from and level <= t.upto then tier = t end
+  local first = 1
+  for i, tier in ipairs(TIERS) do
+    if known(tier) then first = i + 1 end -- a learned tier covers the ones before it: its spell replaces theirs
   end
-  if not tier then return nil end
-  local price, honored = ns.RidingPrice(tier)
-  if price == 0 or known(tier) then return nil end
-  return tier, price, honored, level
+  for i = first, #TIERS do
+    local tier = TIERS[i]
+    local price, honored = ns.RidingPrice(tier)
+    if price > 0 then
+      if level < tier.from then return nil end
+      return tier, price, honored, level
+    end
+  end
 end
 
 -- Copper kept back for riding: what the vendor automations must not spend.
@@ -135,20 +139,22 @@ ns.RegisterRule({
     if level < tier.level then
       why = (tier.level == 40 and (why .. " " .. L["Dual spec (50g at level 40) can wait."]) or why) .. ns.TrainerLine()
       if money >= price then -- saved already: say what is free to spend, low in the list
-        return { { id = "fund", kind = "fund", priority = 20, why = why,
+        return { { id = "fund", kind = "fund", priority = 20, state = "saved", why = why,
           what = string.format(L["Riding gold is ready: keep %s for %s at level %d, %s is free to spend."],
             gold(price, true), tier.name, tier.level, gold(money - price)) } }
       end
-      return { { id = "fund", kind = "fund", priority = level >= tier.level - 2 and 60 or 30, why = why,
+      local soon = level >= tier.level - 2
+      return { { id = "fund", kind = "fund", priority = soon and 60 or 30, state = soon and "soon" or "saving",
+        why = why,
         what = string.format(L["Save for %s at level %d: %s of %s."], tier.name, tier.level, gold(money),
           gold(price)) } }
     end
     if money < price then
-      return { { id = "fund", kind = "fund", priority = 70, why = why,
+      return { { id = "fund", kind = "fund", priority = 70, state = "short", why = why,
         what = string.format(L["%s costs %s: you need %s more."], tier.name, gold(price), gold(price - money, true)) } }
     end
     local r = race()
-    return { { id = "fund", kind = "fund", priority = 85, why = why,
+    return { { id = "fund", kind = "fund", priority = 85, state = "ready", why = why,
       what = string.format(L["Train %s at your race's riding trainer: you have the %s."], tier.name, gold(price)),
       waypoint = r and { map = r.map, x = r.x, y = r.y,
         title = string.format("Wowish: %s (%s)", r.name, L["riding trainer"]) } } }

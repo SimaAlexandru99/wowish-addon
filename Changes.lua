@@ -4,12 +4,11 @@ local _, ns = ...
 local L = ns.L
 
 ns.CHANGES = {
-  version = "0.7.0",
+  version = "0.7.1",
   lines = {
-    "Hidden tips: a Show hidden button in the window (or /wowish unhide) brings them back.",
-    "Snooze: the z on a card (or /wowish snooze N) hides a tip for 30 minutes.",
-    "The bar under the minimap now takes you to the #1 tip when you click it; right-click opens the window.",
-    "The welcome screen has the level-up line and Hearthstone hint options.",
+    "Hidden and snoozed tips no longer take a place in the top 5.",
+    "A hidden bag, quest log, repair or gold tip stays hidden until the situation changes, not just a number.",
+    "Missed Apprentice Riding at 40? The gold plan keeps it as your goal.",
   },
 }
 

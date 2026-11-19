@@ -33,8 +33,23 @@ describe("gold for riding", function()
     local s = fund()[1]
     assert.equal(20, s.priority)
     assert.equal("Riding gold is ready: keep 100g for Apprentice Riding at level 40, 23g is free to spend.", s.what)
-    mock.level, mock.money = 45, 0
+    mock.level, mock.money, mock.ridingMax = 45, 0, 75 -- has Apprentice
     assert.equal(0, #fund())
+  end)
+
+  it("keeps Apprentice as the goal for a player who could not afford it at 40", function()
+    mock.money = 30 * G
+    for _, level in ipairs({ 41, 45, 55, 60 }) do
+      mock.level = level
+      assert.equal("Apprentice Riding costs 100g: you need 70g more.", fund()[1].what, level)
+    end
+    mock.ridingMax = 75 -- Apprentice learned: quiet until Journeyman's window
+    for _, level in ipairs({ 42, 49 }) do
+      mock.level = level
+      assert.equal(0, #fund(), level)
+    end
+    mock.level = 50
+    assert.matches("^Save for Journeyman Riding", fund()[1].what)
   end)
 
   it("takes 10% off at Honored with the home faction, never for Skyborne", function()
@@ -88,6 +103,8 @@ describe("gold for riding", function()
     assert.equal(85, fund()[1].priority) -- Apprentice only: Journeyman still to train
     mock.ridingMax = 150
     assert.equal(0, #fund())
+    mock.ridingMax, mock.known[33391] = nil, true -- only the Journeyman spell is reported: it covers Apprentice
+    assert.equal(0, #fund())
   end)
 
   it("keeps the riding price as the reserve the vendor helpers must not spend", function()
@@ -97,6 +114,8 @@ describe("gold for riding", function()
     mock.class = "WARLOCK"
     assert.equal(0, ns.RidingReserve())
     mock.class, mock.level = "HUNTER", 45
+    assert.equal(90 * G, ns.RidingReserve()) -- Apprentice still to buy
+    mock.ridingMax = 75
     assert.equal(0, ns.RidingReserve())
   end)
 
