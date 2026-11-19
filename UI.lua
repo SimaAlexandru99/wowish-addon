@@ -19,48 +19,8 @@ local ICONS = {
   commissions = "Interface\\Icons\\INV_Crate_01",
 }
 
-ns.dismissed = {} -- [suggestion id] = text when hidden; the tip returns once its text changes
-
 function ns.Say(msg)
   if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99Wowish|r: " .. tostring(msg)) end
-end
-
-local SNOOZE = 1800 -- seconds
-ns.snoozed = {} -- [suggestion id] = { text, time it comes back }
-
-local function hidden(s)
-  if ns.dismissed[s.id] == s.what then return true end
-  local z = ns.snoozed[s.id]
-  -- shortcut: a snoozed tip returns at the next refresh after its time, not at the exact second
-  return z ~= nil and z[1] == s.what and z[2] > time()
-end
-
--- Suggestions the player has not hidden or snoozed this session.
-function ns.Visible()
-  local out = {}
-  for _, s in ipairs(ns.suggestions) do
-    if not hidden(s) then out[#out + 1] = s end
-  end
-  return out
-end
-
-function ns.HiddenCount()
-  local n = 0
-  for _, s in ipairs(ns.suggestions) do
-    if hidden(s) then n = n + 1 end
-  end
-  return n
-end
-
-function ns.Snooze(s)
-  ns.snoozed[s.id] = { s.what, time() + SNOOZE }
-  ns.NotifyChanged()
-end
-
-function ns.ShowHidden()
-  for k in pairs(ns.dismissed) do ns.dismissed[k] = nil end
-  for k in pairs(ns.snoozed) do ns.snoozed[k] = nil end
-  ns.NotifyChanged()
 end
 
 function ns.AgeText(t)
@@ -212,10 +172,7 @@ local function fillCard(c, i, s)
   c.go:SetScript("OnClick", function()
     if action == "waypoint" then ns.Go(i) else ns.OpenPanel(action, s.action.arg) end
   end)
-  c.hide:SetScript("OnClick", function()
-    ns.dismissed[s.id] = s.what
-    ns.NotifyChanged() -- window, minimap badge and next-tip bar follow
-  end)
+  c.hide:SetScript("OnClick", function() ns.Hide(s) end) -- window, minimap badge and next-tip bar follow
   c.snooze:SetScript("OnClick", function() ns.Snooze(s) end)
   local h = math.max(44, c.what:GetStringHeight() + c.why:GetStringHeight() + 22)
   c:SetHeight(h)
@@ -364,7 +321,7 @@ function ns.ReportLines()
       GetLocale and GetLocale() or "?"),
     string.format("QuestieDB: %s | TomTom: %s | ShortestPathForever: %s", tostring(ns.questieStatus or "not checked"),
       (TomTom and TomTom.AddWaypoint) and "yes" or "no", (ns.RoutePlanner and ns.RoutePlanner()) and "yes" or "no"),
-    string.format("tips: %d | failing rules: %s", #ns.suggestions,
+    string.format("tips: %d | hidden: %d | failing rules: %s", #ns.Visible(), ns.HiddenCount(),
       #failing > 0 and table.concat(failing, ", ") or "none"),
   }
   for i, err in ipairs(ns.recentErrors) do lines[#lines + 1] = string.format("error %d: %s", i, err) end
@@ -383,8 +340,7 @@ local function onSlash(msg)
   elseif h then
     local t = ns.Visible()[tonumber(h)]
     if not t then return ns.Say(string.format(L["there is no tip %s."], h)) end
-    ns.dismissed[t.id] = t.what -- same as the card's x
-    ns.NotifyChanged()
+    ns.Hide(t) -- same as the card's x
   elseif z then
     local t = ns.Visible()[tonumber(z)]
     if not t then return ns.Say(string.format(L["there is no tip %s."], z)) end

@@ -141,7 +141,7 @@ describe("QuestieDB integration", function()
       local prio = {}
       for _, s in ipairs(all) do prio[s.id] = s.priority end
       assert.same({ ["turnin:1413"] = 90, ["turnin:?"] = 70, ["turnin:1440"] = 68, ["turnin:1456"] = 60 }, prio)
-      assert.equal(2, #ns.suggestions) -- maxInTop = 2
+      assert.equal(2, #ns.Visible()) -- maxInTop = 2
       assert.matches("Turn in 2 quests in The Barrens: NearQ, FarQ", byId["turnin:1413"].what)
     end)
 

@@ -146,7 +146,7 @@ describe("what is new", function()
     ns.db.locale = "roRO"
     SlashCmdList.WOWISH("new")
     assert.matches("Ce e nou in Wowish", mock.chat[1])
-    assert.matches("Sfaturi ascunse", mock.chat[2])
+    assert.matches("Sfaturile ascunse", mock.chat[2])
   end)
 end)
 

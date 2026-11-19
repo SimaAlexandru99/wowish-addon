@@ -229,7 +229,7 @@ describe("UI", function()
     slash("report")
     assert.matches("Wowish v0%.3%.0%-test | game 1%.60%.1 %(70938%) | enUS", mock.chat[1])
     assert.matches("QuestieDB: missing | TomTom: no | ShortestPathForever: no", mock.chat[2])
-    assert.matches("failing rules: broken", mock.chat[3])
+    assert.matches("tips: %d+ | hidden: 0 | failing rules: broken", mock.chat[3])
     assert.matches("error 1: .*boom", mock.chat[4])
     for i = 1, 5 do ns.report("e" .. i) end
     assert.same({ "e5", "e4", "e3" }, ns.recentErrors) -- newest first, only three kept

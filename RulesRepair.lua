@@ -27,7 +27,7 @@ ns.RegisterRule({
     local npc, yards
     if ns.NearestService then npc, yards = ns.NearestService("repair") end
     local tip = {
-      id = "repair", kind = "repair", priority = r < 0.05 and 90 or 75,
+      id = "repair", kind = "repair", priority = r < 0.05 and 90 or 75, state = r < 0.05 and "critical" or "low",
       what = string.format(L["Repair your gear: one item is at %d%% durability."], math.floor(r * 100)),
       why = L["Broken items stop giving their stats. Any armor or weapon vendor can repair them."],
       waypoint = npc and { map = npc.place.map, x = npc.place.x, y = npc.place.y,

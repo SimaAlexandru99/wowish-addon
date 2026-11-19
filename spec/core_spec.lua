@@ -102,6 +102,58 @@ describe("Core", function()
       assert.equal("k", got[1].id)
     end)
 
+    it("a hidden tip gives its place to the next one, also within a rule's maxInTop", function()
+      local list = {}
+      for i = 1, 7 do list[i] = { id = "m" .. i, priority = 100 - i, what = "tip " .. i } end
+      ns.RegisterRule(rule("misc", list))
+      ns.RegisterRule(rule("turnin", {
+        { id = "t1", priority = 50, what = "a" }, { id = "t2", priority = 40, what = "b" },
+        { id = "t3", priority = 30, what = "c" },
+      }, { maxInTop = 2 }))
+      ns.db.rules.turnin = false
+      ns.Evaluate()
+      ns.Hide(ns.suggestions[1])
+      ns.Hide(ns.suggestions[2])
+      assert.equal(5, #ns.Visible())
+      assert.equal("m3", ns.Visible()[1].id)
+      assert.equal(2, ns.HiddenCount())
+      ns.ShowHidden()
+      ns.db.rules.turnin, ns.db.rules.misc = nil, false
+      ns.Evaluate()
+      ns.Hide(ns.suggestions[1])
+      local ids = {}
+      for _, s in ipairs(ns.Visible()) do ids[#ids + 1] = s.id end
+      assert.same({ "t2", "t3" }, ids)
+    end)
+
+    it("keeps a tip hidden or snoozed while its state holds, whatever its text says", function()
+      local tip = { id = "bags", priority = 60, state = "almost", what = "3 free slots." }
+      ns.RegisterRule({ id = "bags", evaluate = function() return { tip } end })
+      ns.Evaluate()
+      ns.Hide(ns.suggestions[1])
+      tip.what = "2 free slots."
+      assert.equal(0, #ns.Evaluate())
+      tip.state = "full"
+      assert.equal(1, #ns.Evaluate())
+      ns.Snooze(ns.suggestions[1])
+      tip.what = "0 free slots, really."
+      assert.equal(0, #ns.Evaluate())
+      tip.state = "worse" -- not "almost": that one is still hidden
+      assert.equal(1, #ns.Evaluate())
+    end)
+
+    it("a hide lasts one episode: the tip may come back after it went away", function()
+      local list = { { id = "repair", priority = 75, state = "low", what = "17%." } }
+      ns.RegisterRule({ id = "repair", evaluate = function() return list end })
+      ns.Evaluate()
+      ns.Hide(ns.suggestions[1])
+      assert.equal(0, #ns.Evaluate())
+      local tip = table.remove(list) -- repaired
+      ns.Evaluate()
+      list[1] = tip -- worn down again
+      assert.equal(1, #ns.Evaluate())
+    end)
+
     it("rejects duplicate rule ids", function()
       ns.RegisterRule(rule("a", {}))
       assert.has_error(function() ns.RegisterRule(rule("a", {})) end)
